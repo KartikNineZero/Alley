@@ -2,71 +2,120 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import *
+import requests
+from Classes.Chatbot import CustomChatbot
+from Classes.BookmarksManager import BookmarksManager
+from Classes.MediaDownloader import SaveFromNet
+
+# Custom WebEnginePage to handle cookies
+class CustomWebEnginePage(QWebEnginePage):
+    def setCookie(self, filename):
+        cookies = self.profile().cookieStore().getAllCookies()
+        for cookie in cookies:
+            if cookie.name() == b"download_warning":
+                self.profile().cookieStore().deleteAllCookies()
+                cookie = QNetworkCookie(b"download_warning", b"a; filename*=UTF-8''{}".format(filename))
+                cookie.setPath(b"/")
+                cookie.setHttpOnly(False)
+                cookie.setSecure(False)
+                # Set the SameSite attribute to Lax
+                cookie.setSameSite(QNetworkCookie.SameSiteLax)
+                self.profile().cookieStore().setCookie(cookie)
 
 class MainWindow(QMainWindow):
-
-
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        # Set window properties
         self.setWindowTitle('Alley Browser')
         self.setWindowIcon(QIcon('Icons/Logo.png'))
 
-        # Create tab widget
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.setCentralWidget(self.tabs)
 
-        # Create toolbar
         toolbar = QToolBar()
         self.addToolBar(toolbar)
 
-        # Add back button
         back_btn = QAction('⮜', self)
         back_btn.triggered.connect(lambda: self.current_browser().back() if self.current_browser() else None)
         toolbar.addAction(back_btn)
 
-        # Add forward button
         forward_btn = QAction('⮞', self)
         forward_btn.triggered.connect(lambda: self.current_browser().forward() if self.current_browser() else None)
         toolbar.addAction(forward_btn)
 
-        # Add reload button
         reload_btn = QAction('⟳', self)
         reload_btn.triggered.connect(lambda: self.current_browser().reload() if self.current_browser() else None)
         toolbar.addAction(reload_btn)
 
-        # Add home button
         home_btn = QAction('⌂', self)
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
 
-        # Add new tab button
         add_tab_btn = QAction('+', self)
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
 
-        # Add Inspect Element action
-        inspect_element_action = QAction('🔍', self)
-        inspect_element_action.triggered.connect(self.inspect_element)
-        toolbar.addAction(inspect_element_action)
-
-        # Add URL bar
         self.url_bar = QLineEdit()
         self.url_bar.returnPressed.connect(self.navigate_to_url)
         toolbar.addWidget(self.url_bar)
 
-        # Add first tab
+        self.dropdown_menu = QMenu(self)
+        self.bookmarks_action = QAction('Bookmarks', self)
+        self.cookies_action = QAction('Cookies', self)
+        self.history_action = QAction('History', self)
+        self.dropdown_menu.addAction(self.bookmarks_action)
+        self.dropdown_menu.addAction(self.cookies_action)
+        self.dropdown_menu.addAction(self.history_action)
+
+        dropdown_btn = QToolButton(self)
+        dropdown_btn.setMenu(self.dropdown_menu)
+        dropdown_btn.setPopupMode(QToolButton.InstantPopup)
+        dropdown_btn.setIcon(QIcon('Icons/menu.png'))
+
+        toolbar.addWidget(dropdown_btn)
+
+        self.bookmarks_action.triggered.connect(self.show_bookmarks)
+        self.cookies_action.triggered.connect(self.show_cookies)
+        self.history_action.triggered.connect(self.show_history)
+
+        # Chatbot instance
+        self.chatbot = CustomChatbot()
+
+        # Action for opening chatbot overlay
+        chatbot_action = QAction('Chatbot', self)
+        chatbot_action.triggered.connect(self.open_chatbot_overlay)
+        self.dropdown_menu.addAction(chatbot_action)
+
+        # Downloads action in the dropdown
+        self.downloaded_files = []  # List to keep track of downloaded files
+        self.downloads_action = QAction('Downloads', self)
+        self.downloads_action.triggered.connect(self.show_downloads)
+        self.dropdown_menu.addAction(self.downloads_action)
+
+        # Media Downloader instance
+        self.media_downloader = SaveFromNet()
+
+        # Media Downloader action in the dropdown
+        media_downloader_action = QAction('Media Downloader', self)
+        media_downloader_action.triggered.connect(self.open_media_downloader)
+        self.dropdown_menu.addAction(media_downloader_action)
+
         self.add_tab()
+
+        # Chatbot overlay
+        self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
+        self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
+        self.overlay_widget.hide()
 
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
     def add_tab(self):
         browser = QWebEngineView()
+        browser.setPage(CustomWebEnginePage())
         browser.setUrl(QUrl('https://google.com'))
         self.tabs.addTab(browser, 'New Tab')
         self.tabs.setCurrentWidget(browser)
@@ -78,19 +127,14 @@ class MainWindow(QMainWindow):
                 lambda url, browser=browser: self.update_url(url) if self.current_browser() == browser else None)
 
     def close_tab(self, index):
-        # Get the browser widget at the specified index
         browser_widget = self.tabs.widget(index)
 
-        # Stop the video (if it is a video)
         if browser_widget.url().host() == "www.youtube.com":
             browser_widget.page().runJavaScript("document.getElementsByTagName('video')[0].pause();")
 
-        # Remove the tab
         if self.tabs.count() < 2:
-            # If this is the last tab, close the whole window
             self.close()
         else:
-            # Remove the tab and delete the associated browser widget
             self.tabs.removeTab(index)
             browser_widget.deleteLater()
 
@@ -110,30 +154,103 @@ class MainWindow(QMainWindow):
             self.url_bar.setText(q.toString())
             self.url_bar.setCursorPosition(0)
 
-    def inspect_element(self):
+    def show_bookmarks(self):
+        if not hasattr(self, 'bookmarks_manager'):
+            self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
+            self.layout().addWidget(self.bookmarks_manager)
+        self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
+
+    def show_cookies(self):
+        print("Cookies action triggered")
+
+    def show_history(self):
         if self.current_browser():
-            # Get the current browser page
-            page = self.current_browser().page()
+            history_menu = QMenu(self)
+            for entry in self.current_browser().history().items():
+                action = history_menu.addAction(entry.title())
+                action.triggered.connect(lambda _, url=entry.url(): self.current_browser().setUrl(url))
+            history_menu.exec_(QCursor.pos())
 
-            # Enable remote debugging
-            page.settings().setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
+    def open_chatbot_overlay(self):
+        self.overlay_widget.show()
 
-            # Create a new tab for DevTools
-            dev_tools_browser = QWebEngineView()
-            dev_tools_browser.page().setDevToolsPage(page)
-            self.tabs.addTab(dev_tools_browser, 'DevTools')
-            self.tabs.setCurrentWidget(dev_tools_browser)
+    def open_media_downloader(self):
+        # Show the Media Downloader dialog
+        result = self.media_downloader.exec_()
+        if result == QDialog.Accepted:
+            # Handle downloaded file
+            filename = self.media_downloader.get_filename()
+            if filename:
+                self.downloaded_files.append(filename)
+                QMessageBox.information(self, "Download Complete", f"File '{filename}' downloaded successfully.")
 
-            # Open DevTools using the remote debugging URL
-            dev_tools_url = page.url().toString().replace('http://', 'chrome-devtools://devtools/remote/')
-            dev_tools_browser.setUrl(QUrl(dev_tools_url))
+    def show_downloads(self):
+        if not self.downloaded_files:
+            QMessageBox.information(self, "Downloads", "No files downloaded yet.")
+            return
+
+        downloads_text = "\n".join(self.downloaded_files)
+        QMessageBox.information(self, "Downloads", f"Downloaded Files:\n{downloads_text}")
 
 
-app = QApplication(sys.argv)
-app.setApplicationName('Alley')
-app.setApplicationDisplayName('Alley')
-app.setOrganizationName('SDCCE')
-window = MainWindow()
-window.showMaximized()
-app.exec_()
+class ChatOverlay(QWidget):
+    def __init__(self, chatbot, parent=None):
+        super(ChatOverlay, self).__init__(parent)
 
+        self.chatbot = chatbot
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+
+        self.user_input = QLineEdit()
+        self.user_input.setPlaceholderText("Type your message...")
+        layout.addWidget(self.user_input)
+
+        submit_button = QPushButton("Submit")
+        submit_button.clicked.connect(self.get_chatbot_response)
+        layout.addWidget(submit_button)
+
+        self.chat_display = QTextBrowser()
+        layout.addWidget(self.chat_display)
+
+        self.setLayout(layout)
+
+    def get_chatbot_response(self):
+        user_input = self.user_input.text()
+        response = self.chatbot.get_response(user_input)
+        self.chat_display.append(f"You: {user_input}")
+        self.chat_display.append(f"Chatbot: {response}")
+        self.user_input.clear()
+
+
+class OverlayWidget(QWidget):
+    def __init__(self, content_widget, parent=None):
+        super(OverlayWidget, self).__init__(parent)
+
+        self.content_widget = content_widget
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet("background-color: rgba(255, 255, 255, 200); border: 1px solid black;")
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.content_widget)
+        self.setLayout(layout)
+
+    def showEvent(self, event):
+        self.setGeometry(
+            self.parent().geometry().x(),
+            self.parent().geometry().y(),
+            self.parent().geometry().width(),
+            self.parent().geometry().height()
+        )
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    app.setApplicationName('Alley')
+    app.setApplicationDisplayName('Alley')
+    app.setOrganizationName('SDCCE')
+    window = MainWindow()
+    window.showMaximized()
+    sys.exit(app.exec_())
