@@ -62,6 +62,11 @@ class MainWindow(QMainWindow):
         self.url_bar.returnPressed.connect(self.navigate_to_url)
         toolbar.addWidget(self.url_bar)
 
+        # Add Inspect Element action
+        inspect_element_action = QAction('🔍', self)
+        inspect_element_action.triggered.connect(self.inspect_element)
+        toolbar.addAction(inspect_element_action)
+
         self.dropdown_menu = QMenu(self)
         self.bookmarks_action = QAction('Bookmarks', self)
         self.cookies_action = QAction('Cookies', self)
@@ -142,11 +147,22 @@ class MainWindow(QMainWindow):
         if self.current_browser():
             self.current_browser().setUrl(QUrl('https://www.google.com'))
 
+
     def navigate_to_url(self):
         if self.current_browser():
-            url = self.url_bar.text()
-            if 'http' not in url:
+            input_text = self.url_bar.text()
+
+            # Check if the input text contains ".com"
+            if '.com' in input_text:
+                url = input_text
+            else:
+                # If no ".com" is found, treat it as a search term
+                url = 'https://www.google.com/search?q=' + input_text
+
+            # Ensure the URL starts with "http://" or "https://"
+            if not url.startswith('http://') and not url.startswith('https://'):
                 url = 'https://' + url
+
             self.current_browser().setUrl(QUrl(url))
 
     def update_url(self, q):
@@ -191,6 +207,30 @@ class MainWindow(QMainWindow):
 
         downloads_text = "\n".join(self.downloaded_files)
         QMessageBox.information(self, "Downloads", f"Downloaded Files:\n{downloads_text}")
+
+    def inspect_element(self):
+        if self.current_browser():
+            # Get the current browser page
+            page = self.current_browser().page()
+
+            # Enable remote debugging
+            page.settings().setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
+
+            # Create a new QWebEngineView for DevTools
+            dev_tools_browser = QWebEngineView()
+            dev_tools_browser.page().setDevToolsPage(page)
+
+            # Create a QDockWidget to contain the DevTools browser
+            dock_widget = QDockWidget('DevTools', self)
+            dock_widget.setWidget(dev_tools_browser)
+            dock_widget.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
+
+            # Set the QDockWidget to be a right dock
+            self.addDockWidget(Qt.LeftDockWidgetArea, dock_widget)
+
+            # Open DevTools using the remote debugging URL
+            dev_tools_url = page.url().toString().replace('http://', 'chrome-devtools://devtools/remote/')
+            dev_tools_browser.setUrl(QUrl(dev_tools_url))
 
 
 class ChatOverlay(QWidget):
