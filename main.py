@@ -147,19 +147,15 @@ class MainWindow(QMainWindow):
         if self.current_browser():
             self.current_browser().setUrl(QUrl('https://www.google.com'))
 
-
     def navigate_to_url(self):
         if self.current_browser():
             input_text = self.url_bar.text()
 
-            # Check if the input text contains ".com"
             if '.com' in input_text:
                 url = input_text
             else:
-                # If no ".com" is found, treat it as a search term
                 url = 'https://www.google.com/search?q=' + input_text
 
-            # Ensure the URL starts with "http://" or "https://"
             if not url.startswith('http://') and not url.startswith('https://'):
                 url = 'https://' + url
 
