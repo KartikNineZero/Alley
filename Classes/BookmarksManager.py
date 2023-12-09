@@ -1,6 +1,11 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QPushButton, QLineEdit, QMessageBox, QMenu, QAction, QInputDialog
 from PyQt5.QtCore import Qt, QSettings, QUrl
 
+class Bookmark:
+    def __init__(self, title, url):
+        self.title = title
+        self.url = url
+
 class BookmarksManager(QWidget):
     def __init__(self, browser):
         super().__init__()
@@ -69,8 +74,10 @@ class BookmarksManager(QWidget):
         settings.beginGroup('Bookmarks')
 
         for key in settings.childKeys():
-            bookmark = settings.value(key)
-            self.add_bookmark_item(bookmark['title'], bookmark['url'])
+            bookmark_data = settings.value(key)
+            bookmark = Bookmark(bookmark_data['title'], bookmark_data['url'])
+            self.bookmarks.append(bookmark)
+            self.add_bookmark_item(bookmark.title, bookmark.url)
 
         settings.endGroup()
 
@@ -78,11 +85,21 @@ class BookmarksManager(QWidget):
         settings = QSettings('MySoft', 'MyApp')
         settings.beginGroup('Bookmarks')
 
-        for i in range(self.list_widget.count()):
-            bookmark_item = self.list_widget.item(i)
-            settings.setValue(str(i), {'title': bookmark_item.text(), 'url': bookmark_item.data(Qt.UserRole)})
+        # Clear previous bookmarks
+        for key in settings.childKeys():
+            settings.remove(key)
+
+        # Save the updated list of bookmarks
+        for i, bookmark in enumerate(self.bookmarks):
+            settings.setValue(str(i), {'title': bookmark.title, 'url': bookmark.url})
 
         settings.endGroup()
+
+    def remove_bookmark(self, item):
+        index = self.list_widget.row(item)
+        self.list_widget.takeItem(index)
+        del self.bookmarks[index]
+        self.save_bookmarks()
 
     def add_bookmark(self):
         url = self.input_url.text()
@@ -92,7 +109,9 @@ class BookmarksManager(QWidget):
             QMessageBox.warning(self, 'Error', 'URL and Title must be filled out')
             return
 
-        self.add_bookmark_item(title, url)
+        bookmark = Bookmark(title, url)
+        self.bookmarks.append(bookmark)
+        self.add_bookmark_item(bookmark.title, bookmark.url)
 
         # Clear input fields
         self.input_url.clear()
@@ -125,11 +144,8 @@ class BookmarksManager(QWidget):
 
         menu.exec_(self.list_widget.mapToGlobal(position))
 
-    def remove_bookmark(self, item):
-        self.list_widget.takeItem(self.list_widget.row(item))
-        self.save_bookmarks()
-
     def edit_bookmark(self, item):
+        index = self.list_widget.row(item)
         current_title = item.text()
         current_url = item.data(Qt.UserRole)
 
@@ -139,5 +155,10 @@ class BookmarksManager(QWidget):
         if ok1 and ok2:
             item.setText(new_title)
             item.setData(Qt.UserRole, new_url)
+
+            # Update the corresponding bookmark
+            self.bookmarks[index].title = new_title
+            self.bookmarks[index].url = new_url
+
             # Save bookmarks
             self.save_bookmarks()
