@@ -62,6 +62,20 @@ class BookmarksManager(QWidget):
         )
         input_layout.addWidget(add_button)
 
+        close_button = QPushButton('Close')
+        close_button.clicked.connect(self.close_overlay)
+        close_button.setMaximumWidth(280)
+        close_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #FF0000;
+                color: white;
+                padding: 5px;
+            }
+            """
+        )
+        input_layout.addWidget(close_button)
+
         layout.addLayout(input_layout)
 
         self.setLayout(layout)
@@ -162,3 +176,10 @@ class BookmarksManager(QWidget):
 
             # Save bookmarks
             self.save_bookmarks()
+
+    def close_overlay(self):
+        self.close()
+
+# Usage example:
+# bookmarks_manager = BookmarksManager(browser_instance)
+# bookmarks_manager.show()
