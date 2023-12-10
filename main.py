@@ -10,6 +10,7 @@ from Classes.Chatbot import CustomChatbot
 from Classes.BookmarksManager import BookmarksManager
 from Classes.MediaDownloader import SaveFromNet
 from PyQt5.QtWidgets import QDialog
+import json
 
 class CustomWebEnginePage(QWebEnginePage):
     def setCookie(self, filename):
