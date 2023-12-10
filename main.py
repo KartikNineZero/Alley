@@ -2,9 +2,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtNetwork import QNetworkCookie
 from PyQt5.QtGui import *
-from PyQt5.QtNetwork import *
 import requests
 from Classes.Chatbot import CustomChatbot
 from Classes.BookmarksManager import BookmarksManager
@@ -40,19 +38,19 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar()
         self.addToolBar(toolbar)
 
-        back_btn = QAction('⮜', self)
+        back_btn = QAction('?', self)
         back_btn.triggered.connect(lambda: self.current_browser().back() if self.current_browser() else None)
         toolbar.addAction(back_btn)
 
-        forward_btn = QAction('⮞', self)
+        forward_btn = QAction('?', self)
         forward_btn.triggered.connect(lambda: self.current_browser().forward() if self.current_browser() else None)
         toolbar.addAction(forward_btn)
 
-        reload_btn = QAction('⟳', self)
+        reload_btn = QAction('?', self)
         reload_btn.triggered.connect(lambda: self.current_browser().reload() if self.current_browser() else None)
         toolbar.addAction(reload_btn)
 
-        home_btn = QAction('⌂', self)
+        home_btn = QAction('¦', self)
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
 
@@ -67,9 +65,11 @@ class MainWindow(QMainWindow):
         self.dropdown_menu = QMenu(self)
         self.bookmarks_action = QAction('Bookmarks', self)
         self.cookies_action = QAction('Cookies', self)
+        self.customize_ui_action = QAction('Customize', self)  # Changed variable name
         self.history_action = QAction('History', self)
         self.dropdown_menu.addAction(self.bookmarks_action)
         self.dropdown_menu.addAction(self.cookies_action)
+        self.dropdown_menu.addAction(self.customize_ui_action)  # Updated to use the correct variable
         self.dropdown_menu.addAction(self.history_action)
 
         dropdown_btn = QToolButton(self)
@@ -82,6 +82,14 @@ class MainWindow(QMainWindow):
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
         self.cookies_action.triggered.connect(self.show_cookies)
         self.history_action.triggered.connect(self.show_history)
+
+        # customize
+        self.customize_ui_action.triggered.connect(self.open_customize_dialog)
+        self.dropdown_menu.addAction(self.customize_ui_action)
+
+        # Connect CustomizeDialog to main window for color changes
+        self.customize_dialog = CustomizeDialog(self)
+        self.customize_ui_action.triggered.connect(self.customize_dialog.show)
 
         # Chatbot instance
         self.chatbot = CustomChatbot()
@@ -111,40 +119,6 @@ class MainWindow(QMainWindow):
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
-
-        # Enlarge button
-        enlarge_btn = QAction('Enlarge', self)
-        enlarge_btn.triggered.connect(self.enlarge_components)
-        toolbar.addAction(enlarge_btn)
-        
-        # Make Small button
-        make_small_btn = QAction('Make Small', self)
-        make_small_btn.triggered.connect(self.make_small_components)
-        toolbar.addAction(make_small_btn)
-
-    def make_small_components(self):
-        # Decrease the font size of labels, buttons, or other components
-        self.decrease_font_size(self)
-
-    def enlarge_components(self):
-        # Increase the font size of labels, buttons, or other components
-        self.increase_font_size(self)
-
-    def increase_font_size(self, widget, factor=1.2):
-        font = widget.font()
-        font.setPointSizeF(font.pointSizeF() * factor)
-        widget.setFont(font)
-
-        for child in widget.findChildren(QWidget):
-            self.increase_font_size(child, factor)
-    
-    def decrease_font_size(self, widget, factor=1.2):
-        font = widget.font()
-        font.setPointSizeF(font.pointSizeF() / factor)
-        widget.setFont(font)
-
-        for child in widget.findChildren(QWidget):
-            self.decrease_font_size(child, factor)
 
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
@@ -180,16 +154,9 @@ class MainWindow(QMainWindow):
 
     def navigate_to_url(self):
         if self.current_browser():
-            input_text = self.url_bar.text()
-
-            if '.com' in input_text:
-                url = input_text
-            else:
-                url = 'https://www.google.com/search?q=' + input_text
-
-            if not url.startswith('http://') and not url.startswith('https://'):
+            url = self.url_bar.text()
+            if 'http' not in url:
                 url = 'https://' + url
-
             self.current_browser().setUrl(QUrl(url))
 
     def update_url(self, q):
@@ -205,6 +172,10 @@ class MainWindow(QMainWindow):
 
     def show_cookies(self):
         print("Cookies action triggered")
+
+    def open_customize_dialog(self):
+        customize_dialog = CustomizeDialog(self)
+        customize_dialog.exec_()
 
     def show_history(self):
         if self.current_browser():
@@ -234,6 +205,47 @@ class MainWindow(QMainWindow):
 
         downloads_text = "\n".join(self.downloaded_files)
         QMessageBox.information(self, "Downloads", f"Downloaded Files:\n{downloads_text}")
+
+
+class CustomizeDialog(QDialog):
+    def __init__(self, parent=None):
+        super(CustomizeDialog, self).__init__(parent)
+
+        self.setWindowTitle('Customize UI')
+        self.setMinimumWidth(300)
+
+        layout = QVBoxLayout()
+
+        self.dark_mode_radio = QRadioButton('Dark Mode')
+        self.light_mode_radio = QRadioButton('Light Mode')
+        self.default_radio = QRadioButton('Default')
+
+        layout.addWidget(self.dark_mode_radio)
+        layout.addWidget(self.light_mode_radio)
+        layout.addWidget(self.default_radio)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        layout.addWidget(button_box)
+
+        self.setLayout(layout)
+
+        # Connect radio buttons to change_color method
+        self.dark_mode_radio.clicked.connect(lambda: self.change_color("dark"))
+        self.light_mode_radio.clicked.connect(lambda: self.change_color("light"))
+        self.default_radio.clicked.connect(lambda: self.change_color("default"))
+
+    # New method to change the color of the main window
+    def change_color(self, mode):
+        if mode == "dark":
+            self.parent().setStyleSheet("background-color: #333333; color: white;")
+        elif mode == "light":
+            self.parent().setStyleSheet("background-color: #FFFFFF; color: black;")
+        else:
+            # Default color
+            self.parent().setStyleSheet("")
 
 
 class ChatOverlay(QWidget):
@@ -286,7 +298,7 @@ class OverlayWidget(QWidget):
             self.parent().geometry().y(),
             self.parent().geometry().width(),
             self.parent().geometry().height()
-        )#hy
+        )
 
 
 if __name__ == "__main__":
@@ -297,4 +309,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.showMaximized()
     sys.exit(app.exec_())
-#hibvn
