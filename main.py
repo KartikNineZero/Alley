@@ -1,16 +1,15 @@
-import sys
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtNetwork import QNetworkCookie
-from PyQt5.QtGui import *
-from PyQt5.QtNetwork import *
+import sys,os
+from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QLineEdit, QToolButton, QMenu, QVBoxLayout, QWidget, QMessageBox, QTabWidget, QPushButton, QTextBrowser, QListWidget
+from PyQt5.QtGui import QIcon, QCursor
+from PyQt5.QtCore import QUrl, Qt, pyqtSignal
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
+from PyQt5.QtNetwork import QNetworkCookie, QNetworkCookieJar
 import requests
 from Classes.Chatbot import CustomChatbot
 from Classes.BookmarksManager import BookmarksManager
 from Classes.MediaDownloader import SaveFromNet
+from PyQt5.QtWidgets import QDialog
 
-# Custom WebEnginePage to handle cookies
 class CustomWebEnginePage(QWebEnginePage):
     def setCookie(self, filename):
         cookies = self.profile().cookieStore().getAllCookies()
@@ -21,7 +20,6 @@ class CustomWebEnginePage(QWebEnginePage):
                 cookie.setPath(b"/")
                 cookie.setHttpOnly(False)
                 cookie.setSecure(False)
-                # Set the SameSite attribute to Lax
                 cookie.setSameSite(QNetworkCookie.SameSiteLax)
                 self.profile().cookieStore().setCookie(cookie)
 
@@ -39,6 +37,8 @@ class MainWindow(QMainWindow):
 
         toolbar = QToolBar()
         self.addToolBar(toolbar)
+        self.tabs.currentChanged.connect(self.update_url_from_active_tab)
+        self.tabs.currentChanged.connect(self.update_url_from_tab)
 
         back_btn = QAction('⮜', self)
         back_btn.triggered.connect(lambda: self.current_browser().back() if self.current_browser() else None)
@@ -66,10 +66,8 @@ class MainWindow(QMainWindow):
 
         self.dropdown_menu = QMenu(self)
         self.bookmarks_action = QAction('Bookmarks', self)
-        self.cookies_action = QAction('Cookies', self)
         self.history_action = QAction('History', self)
         self.dropdown_menu.addAction(self.bookmarks_action)
-        self.dropdown_menu.addAction(self.cookies_action)
         self.dropdown_menu.addAction(self.history_action)
 
         dropdown_btn = QToolButton(self)
@@ -80,34 +78,27 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(dropdown_btn)
 
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
-        self.cookies_action.triggered.connect(self.show_cookies)
         self.history_action.triggered.connect(self.show_history)
 
-        # Chatbot instance
         self.chatbot = CustomChatbot()
 
-        # Action for opening chatbot overlay
         chatbot_action = QAction('Chatbot', self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
         self.dropdown_menu.addAction(chatbot_action)
 
-        # Downloads action in the dropdown
-        self.downloaded_files = []  # List to keep track of downloaded files
+        self.downloaded_files = []
         self.downloads_action = QAction('Downloads', self)
         self.downloads_action.triggered.connect(self.show_downloads)
         self.dropdown_menu.addAction(self.downloads_action)
 
-        # Media Downloader instance
         self.media_downloader = SaveFromNet()
 
-        # Media Downloader action in the dropdown
         media_downloader_action = QAction('Media Downloader', self)
         media_downloader_action.triggered.connect(self.open_media_downloader)
         self.dropdown_menu.addAction(media_downloader_action)
 
         self.add_tab()
 
-        # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
@@ -163,6 +154,11 @@ class MainWindow(QMainWindow):
             self.url_bar.setText(q.toString())
             self.url_bar.setCursorPosition(0)
 
+    def update_url_from_tab(self, index):
+        current_browser = self.tabs.widget(index)
+        if current_browser:
+            self.update_url(current_browser.url())
+
     def show_bookmarks(self):
         if not hasattr(self, 'bookmarks_manager'):
             self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
@@ -170,7 +166,12 @@ class MainWindow(QMainWindow):
         self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
 
     def show_cookies(self):
-        print("Cookies action triggered")
+        if not hasattr(self, 'cookie_overlay'):
+            self.cookie_overlay = CookieOverlay(cookie_jar=self.cookie_jar)
+            self.layout().addWidget(self.cookie_overlay)
+            self.cookie_jar.cookies_changed.connect(self.cookie_overlay.update_cookies)
+
+        self.cookie_overlay.setVisible(not self.cookie_overlay.isVisible())
 
     def show_history(self):
         if self.current_browser():
@@ -184,10 +185,8 @@ class MainWindow(QMainWindow):
         self.overlay_widget.show()
 
     def open_media_downloader(self):
-        # Show the Media Downloader dialog
         result = self.media_downloader.exec_()
         if result == QDialog.Accepted:
-            # Handle downloaded file
             filename = self.media_downloader.get_filename()
             if filename:
                 self.downloaded_files.append(filename)
@@ -201,6 +200,18 @@ class MainWindow(QMainWindow):
         downloads_text = "\n".join(self.downloaded_files)
         QMessageBox.information(self, "Downloads", f"Downloaded Files:\n{downloads_text}")
 
+    def update_url_from_active_tab(self, index):
+        current_browser = self.tabs.widget(index)
+        if current_browser:
+            self.url_bar.setText(current_browser.url().toString())
+
+class CustomChatbot:
+    def get_response(self, user_input):
+        return "This is a placeholder response."
+
+class SaveFromNet:
+    def exec_(self):
+        return QDialog.Accepted
 
 class ChatOverlay(QWidget):
     def __init__(self, chatbot, parent=None):
@@ -232,7 +243,6 @@ class ChatOverlay(QWidget):
         self.chat_display.append(f"Chatbot: {response}")
         self.user_input.clear()
 
-
 class OverlayWidget(QWidget):
     def __init__(self, content_widget, parent=None):
         super(OverlayWidget, self).__init__(parent)
@@ -253,7 +263,6 @@ class OverlayWidget(QWidget):
             self.parent().geometry().width(),
             self.parent().geometry().height()
         )
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
