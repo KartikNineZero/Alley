@@ -1,3 +1,4 @@
+import json
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -27,6 +28,7 @@ class CustomWebEnginePage(QWebEnginePage):
 
 class MainWindow(QMainWindow):
     def __init__(self):
+
         super(MainWindow, self).__init__()
 
         self.setWindowTitle('Alley Browser')
@@ -37,6 +39,9 @@ class MainWindow(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.setCentralWidget(self.tabs)
 
+        self.tabs.currentChanged.connect(self.update_url_from_active_tab)
+
+        
         toolbar = QToolBar()
         self.addToolBar(toolbar)
 
@@ -122,8 +127,47 @@ class MainWindow(QMainWindow):
         make_small_btn.triggered.connect(self.make_small_components)
         toolbar.addAction(make_small_btn)
 
+
+        self.load_tabs_data()  # Load saved tabs when the application starts
+
+    def update_url_from_active_tab(self, index):
+        current_browser = self.tabs.widget(index)
+        if current_browser:
+            self.url_bar.setText(current_browser.url().toString())
+    
+    def load_tabs_data(self):
+        try:
+            with open('tabs_data.json', 'r') as file:
+                tabs_data = json.load(file)
+                if not tabs_data:  # Check if the file is empty
+                    print("No data found in tabs_data.json")
+                    return
+                for tab_data in tabs_data:
+                    if tab_data['url'] != 'https://google.com':
+                        self.add_tab(url=tab_data['url'])
+        except FileNotFoundError:
+            print("File tabs_data.json not found.")
+        except json.JSONDecodeError:
+            print("Error decoding JSON data in tabs_data.json")
+
+    def save_tabs_data(self):
+        tabs_data = []
+        for i in range(self.tabs.count()):
+            browser = self.tabs.widget(i)
+            url = browser.url().toString()
+            tabs_data.append({'url': url})
+
+        with open('tabs_data.json', 'w') as file:
+            json.dump(tabs_data, file)
+
+    def closeEvent(self, event):
+        self.save_tabs_data()  # Save tabs data when the application is closed
+        event.accept()
+
+
+
     def make_small_components(self):
-        # Decrease the font size of labels, buttons, or other components gg
+        # Decrease the font size of labels, buttons, or other components
         self.decrease_font_size(self)
 
     def enlarge_components(self):
@@ -149,10 +193,13 @@ class MainWindow(QMainWindow):
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
-    def add_tab(self):
+    def add_tab(self, url=None):  # Set url as an optional parameter
         browser = QWebEngineView()
         browser.setPage(CustomWebEnginePage())
-        browser.setUrl(QUrl('https://google.com'))
+        if url:
+            browser.setUrl(QUrl(url))  # Set the URL if provided
+        else:
+            browser.setUrl(QUrl('https://google.com'))  # Default URL
         self.tabs.addTab(browser, 'New Tab')
         self.tabs.setCurrentWidget(browser)
         self.tabs.setTabText(self.tabs.currentIndex(), 'Loading...')
@@ -297,4 +344,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.showMaximized()
     sys.exit(app.exec_())
-#hibvn
