@@ -286,7 +286,7 @@ class OverlayWidget(QWidget):
             self.parent().geometry().y(),
             self.parent().geometry().width(),
             self.parent().geometry().height()
-        )#hy
+        )
 
 
 if __name__ == "__main__":
