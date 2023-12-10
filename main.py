@@ -112,6 +112,40 @@ class MainWindow(QMainWindow):
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
 
+        # Enlarge button
+        enlarge_btn = QAction('Enlarge', self)
+        enlarge_btn.triggered.connect(self.enlarge_components)
+        toolbar.addAction(enlarge_btn)
+        
+        # Make Small button
+        make_small_btn = QAction('Make Small', self)
+        make_small_btn.triggered.connect(self.make_small_components)
+        toolbar.addAction(make_small_btn)
+
+    def make_small_components(self):
+        # Decrease the font size of labels, buttons, or other components
+        self.decrease_font_size(self)
+
+    def enlarge_components(self):
+        # Increase the font size of labels, buttons, or other components
+        self.increase_font_size(self)
+
+    def increase_font_size(self, widget, factor=1.2):
+        font = widget.font()
+        font.setPointSizeF(font.pointSizeF() * factor)
+        widget.setFont(font)
+
+        for child in widget.findChildren(QWidget):
+            self.increase_font_size(child, factor)
+    
+    def decrease_font_size(self, widget, factor=1.2):
+        font = widget.font()
+        font.setPointSizeF(font.pointSizeF() / factor)
+        widget.setFont(font)
+
+        for child in widget.findChildren(QWidget):
+            self.decrease_font_size(child, factor)
+
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
