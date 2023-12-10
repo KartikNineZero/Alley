@@ -192,7 +192,7 @@ class MainWindow(QMainWindow):
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
 
-        # Enlarge button
+        '''# Enlarge button
         enlarge_btn = QAction('Enlarge', self)
         enlarge_btn.triggered.connect(self.enlarge_components)
         toolbar.addAction(enlarge_btn)
@@ -200,7 +200,7 @@ class MainWindow(QMainWindow):
         # Make Small button
         make_small_btn = QAction('Make Small', self)
         make_small_btn.triggered.connect(self.make_small_components)
-        toolbar.addAction(make_small_btn)
+        toolbar.addAction(make_small_btn)'''
 
         self.load_tabs_data()  # Load saved tabs when the application starts
 
