@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         toolbar.addAction(make_small_btn)
 
     def make_small_components(self):
-        # Decrease the font size of labels, buttons, or other components
+        # Decrease the font size of labels, buttons, or other components gg
         self.decrease_font_size(self)
 
     def enlarge_components(self):
