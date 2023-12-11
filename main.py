@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
         try:
             with open('tabs_data.json', 'r') as file:
                 tabs_data = json.load(file)
-                if not tabs_data:  # Check if the file is empty deepak
+                if not tabs_data:  # Check if the file is empty dee
                     print("No data found in tabs_data.json")
                     return
                 for tab_data in tabs_data:
