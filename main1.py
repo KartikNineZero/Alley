@@ -10,7 +10,8 @@ from Classes.Chatbot import CustomChatbot
 from Classes.BookmarksManager import BookmarksManager
 from Classes.MediaDownloader import SaveFromNet
 
-# Custom WebEnginePage to handle cookies
+
+# Custom WebEnginePage to handle cookiesdeep
 class CustomWebEnginePage(QWebEnginePage):
     def setCookie(self, filename):
         cookies = self.profile().cookieStore().getAllCookies()
@@ -36,6 +37,7 @@ class MainWindow(QMainWindow):
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.setCentralWidget(self.tabs)
+        
         self.tabs.setStyleSheet("""
     QTabWidget::pane {
         background-color: #4d31b6; /* Edge Blue Color */
@@ -103,23 +105,26 @@ class MainWindow(QMainWindow):
 
 
         self.addToolBar(toolbar)
-        back_btn = QAction('⮜', self)
+        icon_width = 20
+        icon_height = 20
+
+        back_btn = QAction(QIcon(QPixmap('Icons/la.png').scaled(icon_width, icon_height)), '', self)
         back_btn.triggered.connect(lambda: self.current_browser().back() if self.current_browser() else None)
         toolbar.addAction(back_btn)
 
-        forward_btn = QAction('⮞', self)
+        forward_btn = QAction(QIcon(QPixmap('Icons/ra.png').scaled(icon_width, icon_height)), '', self)
         forward_btn.triggered.connect(lambda: self.current_browser().forward() if self.current_browser() else None)
         toolbar.addAction(forward_btn)
 
-        reload_btn = QAction('⟳', self)
+        reload_btn = QAction(QIcon(QPixmap('Icons/r.png').scaled(icon_width, icon_height)), '', self)
         reload_btn.triggered.connect(lambda: self.current_browser().reload() if self.current_browser() else None)
         toolbar.addAction(reload_btn)
 
-        home_btn = QAction('⌂', self)
+        home_btn = QAction(QIcon(QPixmap('Icons/home.png').scaled(icon_width, icon_height)), '', self)
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
 
-        add_tab_btn = QAction('+', self)
+        add_tab_btn = QAction(QIcon(QPixmap('Icons/add.png').scaled(icon_width, icon_height)), '', self)
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
 
@@ -127,6 +132,17 @@ class MainWindow(QMainWindow):
         self.url_bar.setFixedHeight(30)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
         toolbar.addWidget(self.url_bar)
+        
+        zoom_in_action = QAction(QIcon(QPixmap('Icons/p.png').scaled(icon_width, icon_height)), '+', self)
+        zoom_in_action.setShortcut('Ctrl++')
+        zoom_in_action.triggered.connect(self.zoom_in)
+        toolbar.addAction(zoom_in_action)
+
+        # Zoom Out action
+        zoom_out_action = QAction(QIcon(QPixmap('Icons/rm.png').scaled(icon_width, icon_height)), '-', self)
+        zoom_out_action.setShortcut('Ctrl+-')
+        zoom_out_action.triggered.connect(self.zoom_out)
+        toolbar.addAction(zoom_out_action)
         
         self.dropdown_menu = QMenu(self)
         self.bookmarks_action = QAction('Bookmarks', self)
@@ -191,6 +207,9 @@ class MainWindow(QMainWindow):
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
 
+    def open_settings(self):
+        # Replace this with your actual settings implementation
+        QMessageBox.information(self, "Settings", "Placeholder for settings. Implement your settings logic here.")
 
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
@@ -281,6 +300,14 @@ class MainWindow(QMainWindow):
         downloads_text = "\n".join(self.downloaded_files)
         QMessageBox.information(self, "Downloads", f"Downloaded Files:\n{downloads_text}")
 
+    def zoom_in(self):
+        if self.current_browser():
+            self.current_browser().setZoomFactor(self.current_browser().zoomFactor() + 0.1)
+
+    def zoom_out(self):
+        if self.current_browser():
+            self.current_browser().setZoomFactor(self.current_browser().zoomFactor() - 0.1)
+
 
 class ChatOverlay(QWidget):
     def __init__(self, chatbot, parent=None):
@@ -315,7 +342,6 @@ class ChatOverlay(QWidget):
         self.user_input.clear()
 
 
-
 class OverlayWidget(QWidget):
     def __init__(self, content_widget, parent=None):
         super(OverlayWidget, self).__init__(parent)
@@ -336,51 +362,7 @@ class OverlayWidget(QWidget):
             self.parent().geometry().width(),
             self.parent().geometry().height()
         )
-def create_dropdown_menu(self):
-    menu = QMenu(self)
-    menu.setStyleSheet(
-        """
-        QMenu {
-            background-color: #4d31b6; /* Menu Background Color */
-            color: white;
-            border: 1px solid #2a1f68; /* Border Color */
-        }
-        QMenu::item {
-            padding: 8px 20px;
-        }
-        QMenu::item:selected {
-            background-color: #2a1f68; /* Selected Item Background Color */
-        }
-        """
-    )
 
-    # Add actions to the menu with icons
-    actions = [
-        ("Bookmarks", self.show_bookmarks,"Icons/bm.png"),
-        ("Cookies", self.show_cookies, "Icons/d.png"),
-        ("History", self.show_history, "Icons/h.png"),
-        ("Chatbot", self.open_chatbot_overlay, "Icons/cb.png"),
-        ("Downloads", self.show_downloads, "Icons/d.png"),
-        ("Media Downloader", self.open_media_downloader, "Icons/md.png"),
-    ]
-
-    for action_text, slot, icon_path in actions:
-        action = QAction(QIcon(icon_path), action_text, self)
-        action.triggered.connect(slot)
-        menu.addAction(action)
-
-    # Add a separator between regular actions and settings
-    menu.addSeparator()
-
-    # Add settings action with a gear icon
-    settings_action = QAction(QIcon("Icons/s.png"), "Settings", self)
-    settings_action.triggered.connect(self.open_settings)
-    menu.addAction(settings_action)
-
-    return menu
-
-
-    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
