@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
 
-        self.load_tabs_data()  # Load saved tabs when the application starts
+        self.load_tabs_data()  # Load saved tabs when the application random
 
     def update_url_from_active_tab(self, index):
         current_browser = self.tabs.widget(index)
