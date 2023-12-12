@@ -11,7 +11,7 @@ from Classes.BookmarksManager import BookmarksManager
 from Classes.MediaDownloader import SaveFromNet
 
 
-# Custom WebEnginePage to handle cookiesdeep
+# Custom WebEnginePage to handle cookies
 class CustomWebEnginePage(QWebEnginePage):
     def setCookie(self, filename):
         cookies = self.profile().cookieStore().getAllCookies()
@@ -40,21 +40,25 @@ class MainWindow(QMainWindow):
         
         self.tabs.setStyleSheet("""
     QTabWidget::pane {
-        background-color: #4d31b6; /* Edge Blue Color */
+        background-color: #3ab4e1; /* Edge Blue Color */
         border-radius: 0; /* Remove border-radius */
     }
+    
+    
     
     QTabWidget::tab-bar {
         alignment: left;
     }
     QTabBar::tab {
-        background-color: #5d3bb6; /* Lightened Blue Color */
+        background-color: #3ab4e1; /* Lightened Blue Color */
         border: none; /* Remove border */
         padding: 8px 20px;
         color: white;
+        min-width: 120px;
     }
     QTabBar::tab:selected {
-        background-color: #b765d2; /* Lightened Selected Tab Background Color */
+        background-color: #4f93e6; /* Lightened Selected Tab Background Color */
+        
     }
 """)
 
@@ -63,18 +67,21 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar()
         toolbar.setStyleSheet("""
     QToolBar {
-        background-color: #4d31b6; /* Edge Blue Color */
+        background-color: #3ab4e1; /* Edge Blue Color */
         color: white;
         spacing: 10px;
         border-radius: none; /* Add border-radius for a curved toolbar */
     }
     QToolButton {
-        background-color: #4d31b6; /* Edge Blue Color */
+        background-color: #3ab4e1; /* Edge Blue Color */
         border: none;
         color: white;
         font-size: 20px;
         padding: 8px;
         border-radius: 5px; /* Add border-radius for a curved button */
+    }
+    QToolButton:hover {
+        background-color: #3498db; /* Change color on hover */
     }
     QLineEdit {
         height: 30px;
@@ -84,21 +91,6 @@ class MainWindow(QMainWindow):
         background-color: black; /* Set background color to black */
         font-size: 16px;
         border-radius: 5px; /* Add border-radius for a curved input field */
-    }
-    QMenu {
-        background-color: #FFFF;
-        font-size: 16px;
-        border-radius: 5px; /* Add border-radius for a curved menu */
-    }
-    QMenu::item {
-        padding: 8px 20px;
-        border-radius: 5px; /* Add border-radius for curved menu items */
-    }
-    QMenu::item:selected {
-        background-color: #2a1f68; /* Selected Item Background Color */
-    }
-    QTabMenu{
-        
     }
 """)
 
@@ -156,6 +148,41 @@ class MainWindow(QMainWindow):
         dropdown_btn.setMenu(self.dropdown_menu)
         dropdown_btn.setPopupMode(QToolButton.InstantPopup)
         dropdown_btn.setIcon(QIcon('Icons/menu.png'))
+        
+        dropdown_btn.setStyleSheet("""
+    QToolButton {
+        background-color: #3ab4e1; /* Change to your desired background color */
+        border: none;
+        color: white;
+        font-size: 20px;
+        padding: 8px;
+        border-radius: 5px; /* Add border-radius for a curved button */
+    }
+    QToolButton:hover {
+        background-color: #3498db; /* Change color on hover */
+    }
+    QToolButton::menu-indicator {
+        image: none; /* Hide the menu indicator arrow */
+    }
+    QMenu {
+        background-color: #3498db; /* Change to your desired background color */
+        font-size: 16px;
+        border-radius: 5px; /* Add border-radius for a curved menu */
+    }
+    QMenu::item {
+        background-color: #3498db; /* Change to your desired background color */
+        padding: 8px 20px;
+        border-radius: 5px; /* Add border-radius for curved menu items */
+    }
+    QMenu::item:selected {
+        background-color: #2980b9; /* Selected Item Background Color */
+    }
+    QMenuBar {
+        background-color: #2980b9; /* Background color for the menu bar */
+    }
+""")
+        
+
 
         # Replace 'Icons/bookmarks_icon.png' with the actual path to your bookmarks icon
         bookmarks_icon_path = 'Icons/bm.png'
@@ -267,6 +294,7 @@ class MainWindow(QMainWindow):
             self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
             self.layout().addWidget(self.bookmarks_manager)
         self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
+        
 
     def show_cookies(self):
         print("Cookies action triggered")
@@ -349,7 +377,7 @@ class OverlayWidget(QWidget):
         self.content_widget = content_widget
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setStyleSheet("background-color: rgba(255, 255, 255); border: 1px solid black;")
+        self.setStyleSheet("background-color: rgba(255, 255, 255); border: 5px solid black;")
 
         layout = QVBoxLayout()
         layout.addWidget(self.content_widget)
