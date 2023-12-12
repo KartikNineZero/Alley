@@ -10,6 +10,7 @@ from Classes.Chatbot import CustomChatbot
 from Classes.BookmarksManager import BookmarksManager
 from Classes.MediaDownloader import SaveFromNet
 from PyQt5.QtWidgets import QDialog
+import json
 
 class CustomWebEnginePage(QWebEnginePage):
     def setCookie(self, filename):
@@ -108,18 +109,7 @@ class MainWindow(QMainWindow):
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
 
-        # Enlarge button
-        enlarge_btn = QAction('Enlarge', self)
-        enlarge_btn.triggered.connect(self.enlarge_components)
-        toolbar.addAction(enlarge_btn)
-        
-        # Make Small button
-        make_small_btn = QAction('Make Small', self)
-        make_small_btn.triggered.connect(self.make_small_components)
-        toolbar.addAction(make_small_btn)
-
-
-        self.load_tabs_data()  # Load saved tabs when the application starts
+        self.load_tabs_data()  # Load saved tabs when the application random
 
     def update_url_from_active_tab(self, index):
         current_browser = self.tabs.widget(index)
@@ -130,7 +120,7 @@ class MainWindow(QMainWindow):
         try:
             with open('tabs_data.json', 'r') as file:
                 tabs_data = json.load(file)
-                if not tabs_data:  # Check if the file is empty
+                if not tabs_data:  # Check if the file is empty dee
                     print("No data found in tabs_data.json")
                     return
                 for tab_data in tabs_data:
