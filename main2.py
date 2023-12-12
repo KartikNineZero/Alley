@@ -131,10 +131,8 @@ class MainWindow(QMainWindow):
 
         self.dropdown_menu = QMenu(self)
         self.bookmarks_action = QAction('Bookmarks', self)
-        self.cookies_action = QAction('Cookies', self)
         self.history_action = QAction('History', self)
         self.dropdown_menu.addAction(self.bookmarks_action)
-        self.dropdown_menu.addAction(self.cookies_action)
         self.dropdown_menu.addAction(self.history_action)
 
         dropdown_btn = QToolButton(self)
@@ -146,10 +144,6 @@ class MainWindow(QMainWindow):
         bookmarks_icon_path = 'Icons/bm.png'
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
 
-        # Replace 'Icons/cookies_icon.png' with the actual path to your cookies icon
-        cookies_icon_path = 'Icons/c.png'
-        self.cookies_action.setIcon(QIcon(cookies_icon_path))
-
         # Replace 'Icons/history_icon.png' with the actual path to your history icon
         history_icon_path = 'Icons/h.png'
         self.history_action.setIcon(QIcon(history_icon_path))
@@ -157,7 +151,6 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(dropdown_btn)
 
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
-        self.cookies_action.triggered.connect(self.show_cookies)
         self.history_action.triggered.connect(self.show_history)
 
         # Chatbot instance
@@ -189,9 +182,8 @@ class MainWindow(QMainWindow):
 
         # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
-        self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
-        self.overlay_widget.hide()
-
+        self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
+        self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
         '''# Enlarge button
         enlarge_btn = QAction('Enlarge', self)
         enlarge_btn.triggered.connect(self.enlarge_components)
@@ -321,11 +313,8 @@ class MainWindow(QMainWindow):
     def show_bookmarks(self):
         if not hasattr(self, 'bookmarks_manager'):
             self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
-            self.layout().addWidget(self.bookmarks_manager)
+            self.layout().addWidget(self.bookmarks_manager)  # Fixed the typo here
         self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
-
-    def show_cookies(self):
-        print("Cookies action triggered")
 
     def show_history(self):
         if self.current_browser():
@@ -336,8 +325,8 @@ class MainWindow(QMainWindow):
             history_menu.exec_(QCursor.pos())
 
     def open_chatbot_overlay(self):
-        self.overlay_widget.show()
-
+        # Toggle the visibility of the chat overlay
+        self.chat_overlay.setVisible(not self.chat_overlay.isVisible())
     def open_media_downloader(self):
         # Show the Media Downloader dialog
         result = self.media_downloader.exec_()
@@ -360,33 +349,78 @@ class MainWindow(QMainWindow):
 class ChatOverlay(QWidget):
     def __init__(self, chatbot, parent=None):
         super(ChatOverlay, self).__init__(parent)
-
         self.chatbot = chatbot
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout()
 
+        # Container for chat input
+        input_container = QWidget()
+        input_layout = QVBoxLayout(input_container)
+
+        # Set white background for chat input
         self.user_input = QLineEdit()
-        self.user_input.setFixedHeight(30)
+        self.user_input.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         self.user_input.setPlaceholderText("Type your message...")
-        layout.addWidget(self.user_input)
+        input_layout.addWidget(self.user_input)
 
+        # Set white background for the submit button
         submit_button = QPushButton("Submit")
-        submit_button.setFixedSize(80, 30)
+        submit_button.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         submit_button.clicked.connect(self.get_chatbot_response)
-        layout.addWidget(submit_button)
+        input_layout.addWidget(submit_button)
 
+        layout.addWidget(input_container)
+
+        # Container for chat display
+        display_container = QWidget()
+        display_layout = QVBoxLayout(display_container)
+
+        # Set white background for chat display
         self.chat_display = QTextBrowser()
-        layout.addWidget(self.chat_display)
+        self.chat_display.setStyleSheet("background-color: Black; color: White; border: 5px solid black;")
+        display_layout.addWidget(self.chat_display)
+
+        # Set white background for the exit button
+        clear_button = QPushButton("Clear")
+        clear_button.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
+        clear_button.clicked.connect(self.clear_chat_display)     
+        display_layout.addWidget(clear_button) 
+        exit_button = QPushButton("Exit")
+        exit_button.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
+        exit_button.clicked.connect(self.exit_overlay)
+        display_layout.addWidget(exit_button)
+
+        layout.addWidget(display_container)
+
+        # Set white background for the ChatOverlay widget
+        self.setStyleSheet("background-color: #5D3BB6; border: 1px solid black;")
 
         self.setLayout(layout)
+
+        # Set the size of ChatOverlay to be similar to BookmarksManager
+        self.setFixedSize(300, 500)  # Adjust the size as needed
+
+    def exit_overlay(self):
+        self.hide()
+
+    def clear_chat_display(self):
+        self.chat_display.clear()
 
     def get_chatbot_response(self):
         user_input = self.user_input.text()
         response = self.chatbot.get_response(user_input)
-        self.chat_display.append(f"You: {user_input}")
-        self.chat_display.append(f"Chatbot: {response}")
+
+        # Style for user messages (blue text)
+        user_style = '<span style="color: #d265b7;">You: </span>'
+        # Style for chatbot replies (green text)
+        chatbot_style = '<span style="color: #b765d2;">Chatbot: </span>'
+
+        # Append user message and chatbot reply to chat_display
+        self.chat_display.append(f"{user_style}{user_input}")
+        self.chat_display.append(f"{chatbot_style}{response}")
+
         self.user_input.clear()
 
 
@@ -398,8 +432,7 @@ class OverlayWidget(QWidget):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background-color: rgba(255, 255, 255, 200); border: 1px solid black;")
-        #self.setStyleSheet("background-color: rgba(255, 255, 255); border: 1px solid black;")  
-        
+ 
         layout = QVBoxLayout()
         layout.addWidget(self.content_widget)
         self.setLayout(layout)
@@ -433,7 +466,6 @@ class OverlayWidget(QWidget):
         # Add actions to the menu with icons
         actions = [
             ("Bookmarks", self.show_bookmarks,"Icons/bm.png"),
-            ("Cookies", self.show_cookies, "Icons/d.png"),
             ("History", self.show_history, "Icons/h.png"),
             ("Chatbot", self.open_chatbot_overlay, "Icons/cb.png"),
             ("Downloads", self.show_downloads, "Icons/d.png"),
