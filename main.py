@@ -135,6 +135,15 @@ class MainWindow(QMainWindow):
         self.url_bar = QLineEdit()
         self.url_bar.setFixedHeight(30)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
+        self.url_bar.setStyleSheet("""
+            height: 30px;
+            border: 1px solid #000000; /* Edge Blue Color */
+            padding: 5px 10px;
+            color: white; /* Set text color to white */
+            background-color: black; /* Set background color to black */
+            font-size: 13px;
+            border-radius: 5px; /* Add border-radius for rounded corners */
+        """)
         toolbar.addWidget(self.url_bar)
 
         zoom_in_action = QAction(QIcon(QPixmap('Icons/p.png').scaled(icon_width, icon_height)), '+', self)
