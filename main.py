@@ -251,7 +251,7 @@ class MainWindow(QMainWindow):
 
         # Action for opening chatbot overlay
         chatbot_icon_path = 'Icons/cb.png'
-        chatbot_action = QAction(QIcon(chatbot_icon_path),'Chatbot', self)
+        chatbot_action = QAction('Chatbot', self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
         self.dropdown_menu.addAction(chatbot_action)
 
@@ -275,9 +275,9 @@ class MainWindow(QMainWindow):
 
         # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
-        self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
-        self.overlay_widget.hide()
-
+        self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
+        self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
+       
         self.load_tabs_data()  # Load saved tabs when the application starts
 
     def update_url_from_active_tab(self, index):
@@ -448,6 +448,7 @@ class MainWindow(QMainWindow):
     def open_chatbot_overlay(self):
         # Toggle the visibility of the chat overlay
         self.chat_overlay.setVisible(not self.chat_overlay.isVisible())
+
     def open_media_downloader(self):
         # Show the Media Downloader dialog
         result = self.media_downloader.exec_()
@@ -474,9 +475,10 @@ class MainWindow(QMainWindow):
         if self.current_browser():
             self.current_browser().setZoomFactor(self.current_browser().zoomFactor() - 0.1)
 
-class CustomChatbot:
-    def get_response(self, user_input):
-        return "This is a placeholder response."
+#commenting this class for now -kellidan
+#class CustomChatbot:
+    #def get_response(self, user_input):
+        #return "This is a placeholder response."
     
 class SaveFromNet:
     def exec_(self):
@@ -519,7 +521,6 @@ class CustomizeDialog(QDialog):
         elif mode == "light":
             self.parent().setStyleSheet("background-color: #FFFFFF; color: black;")
 
-
 class ChatOverlay(QWidget):
     def __init__(self, chatbot, parent=None):
         super(ChatOverlay, self).__init__(parent)
@@ -537,17 +538,14 @@ class ChatOverlay(QWidget):
         self.user_input = QLineEdit()
         self.user_input.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         self.user_input.setPlaceholderText("Type your message...")
-        layout.addWidget(self.user_input)
+        input_layout.addWidget(self.user_input)
 
         # Set white background for the submit button
         submit_button = QPushButton("Submit")
         submit_button.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         submit_button.clicked.connect(self.get_chatbot_response)
-        layout.addWidget(submit_button)
+        input_layout.addWidget(submit_button)
 
-        self.chat_display = QTextBrowser()
-        layout.addWidget(self.chat_display)
-        
         layout.addWidget(input_container)
 
         # Container for chat display
