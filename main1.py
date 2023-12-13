@@ -140,9 +140,11 @@ class MainWindow(QMainWindow):
         self.bookmarks_action = QAction('Bookmarks', self)
         self.cookies_action = QAction('Cookies', self)
         self.history_action = QAction('History', self)
+        self.customize_ui_action = QAction('Customize', self)
         self.dropdown_menu.addAction(self.bookmarks_action)
         self.dropdown_menu.addAction(self.cookies_action)
         self.dropdown_menu.addAction(self.history_action)
+
 
         dropdown_btn = QToolButton(self)
         dropdown_btn.setMenu(self.dropdown_menu)
@@ -181,7 +183,27 @@ class MainWindow(QMainWindow):
         background-color: #2980b9; /* Background color for the menu bar */
     }
 """)
+        dropdown_menu_style = """
+    QMenu {
+        background-color: #000; /* Change to your desired background color */
+        font-size: 16px;
+        border: 3px solid #fff;
+        border-radius: 5px; /* Add border-radius for a curved menu */
+        padding: 10px;
+    }
+    QMenu::item {
+        background-color: #000; /* Change to your desired background color */
+        padding: 8px 20px;
+        border-radius: 5px; /* Add border-radius for curved menu items */
+        color: white; /* Set text color to white */
         
+    }
+    QMenu::item:selected {
+        background-color: #3498db; /* Selected Item Background Color */
+    }
+"""
+
+        self.dropdown_menu.setStyleSheet(dropdown_menu_style)
 
 
         # Replace 'Icons/bookmarks_icon.png' with the actual path to your bookmarks icon
@@ -201,6 +223,15 @@ class MainWindow(QMainWindow):
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
         self.cookies_action.triggered.connect(self.show_cookies)
         self.history_action.triggered.connect(self.show_history)
+        
+        # customize
+        self.customize_ui_action = QAction(QIcon('Icons/dm.png'), 'Dark', self)
+        self.customize_ui_action.triggered.connect(self.open_customize_dialog)
+        self.dropdown_menu.addAction(self.customize_ui_action)
+
+        # Connect CustomizeDialog to main window for color changes
+        self.customize_dialog = CustomizeDialog(self)
+        self.customize_ui_action.triggered.connect(self.customize_dialog.show)
 
         # Chatbot instance
         self.chatbot = CustomChatbot()
@@ -298,6 +329,11 @@ class MainWindow(QMainWindow):
 
     def show_cookies(self):
         print("Cookies action triggered")
+        
+        
+    def open_customize_dialog(self):
+        customize_dialog = CustomizeDialog(self)
+        customize_dialog.exec_()
 
     def show_history(self):
         if self.current_browser():
@@ -335,6 +371,43 @@ class MainWindow(QMainWindow):
     def zoom_out(self):
         if self.current_browser():
             self.current_browser().setZoomFactor(self.current_browser().zoomFactor() - 0.1)
+
+class CustomizeDialog(QDialog):
+    def __init__(self, parent=None):
+        super(CustomizeDialog, self).__init__(parent)
+
+        self.setWindowTitle('Dark mode')
+        self.setMinimumWidth(300)
+        
+
+        layout = QVBoxLayout()
+
+        self.dark_mode_radio = QRadioButton('Dark Mode')
+        self.light_mode_radio = QRadioButton('Light Mode')
+        
+        
+
+        layout.addWidget(self.dark_mode_radio)
+        layout.addWidget(self.light_mode_radio)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        layout.addWidget(button_box)
+
+        self.setLayout(layout)
+
+        # Connect radio buttons to change_color method
+        self.dark_mode_radio.clicked.connect(lambda: self.change_color("dark"))
+        self.light_mode_radio.clicked.connect(lambda: self.change_color("light"))
+
+    # New method to change the color of the main window
+    def change_color(self, mode):
+        if mode == "dark":
+            self.parent().setStyleSheet("background-color: #333333; color: white;")
+        elif mode == "light":
+            self.parent().setStyleSheet("background-color: #FFFFFF; color: black;")
 
 
 class ChatOverlay(QWidget):
