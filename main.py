@@ -1,5 +1,7 @@
-import json
 import sys
+import json
+from urllib.parse import urlparse
+
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
@@ -313,21 +315,31 @@ class MainWindow(QMainWindow):
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
-    def add_tab(self, url=None):  # Set url as an optional parameter
+    def add_tab(self, url=None):
         browser = QWebEngineView()
         browser.setPage(CustomWebEnginePage())
+        
         if url:
-            browser.setUrl(QUrl(url))  # Set the URL if provided
+            browser.setUrl(QUrl(url))
         else:
-            browser.setUrl(QUrl('https://google.com'))  # Default URL
+            browser.setUrl(QUrl('https://google.com'))
+        
         self.tabs.addTab(browser, 'New Tab')
         self.tabs.setCurrentWidget(browser)
         self.tabs.setTabText(self.tabs.currentIndex(), 'Loading...')
-        browser.titleChanged.connect(
-            lambda title, browser=browser: self.tabs.setTabText(self.tabs.indexOf(browser), title))
+        
+        browser.titleChanged.connect(lambda title, browser=browser: self.update_tab_title(browser))
+
         if self.current_browser():
-            browser.urlChanged.connect(
-                lambda url, browser=browser: self.update_url(url) if self.current_browser() == browser else None)
+            browser.urlChanged.connect(lambda url, browser=browser: self.update_url(url) if 
+                self.current_browser() == browser else None)
+
+    def update_tab_title(self, browser):
+        # Get the domain name from the URL without "www."
+        parsed_url = urlparse(browser.url().toString())
+        domain = parsed_url.hostname.replace("www.", "") if parsed_url.hostname else "Unknown"
+        self.tabs.setTabText(self.tabs.indexOf(browser), domain)
+
 
     def close_tab(self, index):
         browser_widget = self.tabs.widget(index)
@@ -607,15 +619,7 @@ class OverlayWidget(QWidget):
             action.triggered.connect(slot)
             menu.addAction(action)
 
-        # Add a separator between regular actions and settings
-        menu.addSeparator()
-
-        # Add settings action with a gear icon
-        settings_action = QAction(QIcon("Icons/s.png"), "Settings", self)
-        settings_action.triggered.connect(self.open_settings)
-        menu.addAction(settings_action)
-
-        return menu
+        
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
