@@ -256,7 +256,7 @@ class MainWindow(QMainWindow):
 
         # Media Downloader action in the dropdown
         media_downloader_icon_path = 'Icons/md.png'
-        media_downloader_action = QAction(QIcon(media_downloader_icon_path),'Media Downloader', self)
+        media_downloader_action = QAction('Media Downloader', self)
         media_downloader_action.triggered.connect(self.open_media_downloader)
         self.dropdown_menu.addAction(media_downloader_action)
 
@@ -420,9 +420,20 @@ class CustomChatbot:
     def get_response(self, user_input):
         return "This is a placeholder response."
     
-class SaveFromNet:
+'''class SaveFromNet:
+    def __init__(self):
+        self.filename = None
+
+    def get_filename(self):
+        # Implement the logic to get the filename here
+        # For example, you might prompt the user to enter a filename or generate one
+        # In this example, I'm returning a placeholder filename if it's not set
+        if not self.filename:
+            self.filename = "example_filename.txt"
+        return self.filename
+
     def exec_(self):
-        return QDialog.Accepted
+        return QDialog.Accepted'''
 
 class CustomizeDialog(QDialog):
     def __init__(self, parent=None):
