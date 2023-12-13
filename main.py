@@ -112,23 +112,23 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
 
-        back_btn = QAction('⮜', self)
+        back_btn = QAction(QIcon(QPixmap('Icons/la.png').scaled(icon_width, icon_height)), '⮜', self)
         back_btn.triggered.connect(lambda: self.current_browser().back() if self.current_browser() else None)
         toolbar.addAction(back_btn)
 
-        forward_btn = QAction('⮞', self)
+        forward_btn = QAction(QIcon(QPixmap('Icons/ra.png').scaled(icon_width, icon_height)), '⮞', self)
         forward_btn.triggered.connect(lambda: self.current_browser().forward() if self.current_browser() else None)
         toolbar.addAction(forward_btn)
 
-        reload_btn = QAction('⟳', self)
+        reload_btn = QAction(QIcon(QPixmap('Icons/r.png').scaled(icon_width, icon_height)), '⟳', self)
         reload_btn.triggered.connect(lambda: self.current_browser().reload() if self.current_browser() else None)
         toolbar.addAction(reload_btn)
 
-        home_btn = QAction('⌂', self)
+        home_btn = QAction(QIcon(QPixmap('Icons/home.png').scaled(icon_width, icon_height)), '⌂', self)
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
 
-        add_tab_btn = QAction('+', self)
+        add_tab_btn = QAction(QIcon(QPixmap('Icons/add.png').scaled(icon_width, icon_height)), '+', self)
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
         
