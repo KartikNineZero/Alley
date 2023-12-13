@@ -251,7 +251,7 @@ class MainWindow(QMainWindow):
 
         # Action for opening chatbot overlay
         chatbot_icon_path = 'Icons/cb.png'
-        chatbot_action = QAction('Chatbot', self)
+        chatbot_action = QAction(QIcon(chatbot_icon_path),'Chatbot', self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
         self.dropdown_menu.addAction(chatbot_action)
 
