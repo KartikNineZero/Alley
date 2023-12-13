@@ -267,7 +267,7 @@ class MainWindow(QMainWindow):
 
         # Media Downloader action in the dropdown
         media_downloader_icon_path = 'Icons/md.png'
-        media_downloader_action = QAction(QIcon(media_downloader_icon_path),'Media Downloader', self)
+        media_downloader_action = QAction('Media Downloader', self)
         media_downloader_action.triggered.connect(self.open_media_downloader)
         self.dropdown_menu.addAction(media_downloader_action)
 
@@ -480,10 +480,6 @@ class MainWindow(QMainWindow):
     #def get_response(self, user_input):
         #return "This is a placeholder response."
     
-class SaveFromNet:
-    def exec_(self):
-        return QDialog.Accepted
-
 class CustomizeDialog(QDialog):
     def __init__(self, parent=None):
         super(CustomizeDialog, self).__init__(parent)
