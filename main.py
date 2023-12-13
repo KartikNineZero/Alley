@@ -1,18 +1,15 @@
-<<<<<<< HEAD
-import sys
-=======
 import sys,json
->>>>>>> ed104192b928376829c8d76c367368781b87bd81
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtNetwork import *
 import requests
 from Classes.Chatbot import CustomChatbot
 from Classes.BookmarksManager import BookmarksManager
 from Classes.MediaDownloader import SaveFromNet
 from PyQt5.QtWidgets import QDialog
-import json
+
 
 class CustomWebEnginePage(QWebEnginePage):
     def setCookie(self, filename):
@@ -26,6 +23,7 @@ class CustomWebEnginePage(QWebEnginePage):
                 cookie.setSecure(False)
                 cookie.setSameSite(QNetworkCookie.SameSiteLax)
                 self.profile().cookieStore().setCookie(cookie)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -70,28 +68,19 @@ class MainWindow(QMainWindow):
 
         self.dropdown_menu = QMenu(self)
         self.bookmarks_action = QAction('Bookmarks', self)
-<<<<<<< HEAD
-        self.cookies_action = QAction('Cookies', self)
-        self.customize_ui_action = QAction('Customize', self)  # Changed variable name
         self.history_action = QAction('History', self)
         self.dropdown_menu.addAction(self.bookmarks_action)
-        self.dropdown_menu.addAction(self.cookies_action)
-        self.dropdown_menu.addAction(self.customize_ui_action)  # Updated to use the correct variable
-=======
-        self.history_action = QAction('History', self)
-        self.dropdown_menu.addAction(self.bookmarks_action)
->>>>>>> ed104192b928376829c8d76c367368781b87bd81
         self.dropdown_menu.addAction(self.history_action)
 
         dropdown_btn = QToolButton(self)
-        dropdown_btn.setMenu(self.dropdown_menu)
+        dropdown_btn.setMenu(dropdown_menu)
         dropdown_btn.setPopupMode(QToolButton.InstantPopup)
         dropdown_btn.setIcon(QIcon('Icons/menu.png'))
 
         toolbar.addWidget(dropdown_btn)
 
-        self.bookmarks_action.triggered.connect(self.show_bookmarks)
-        self.history_action.triggered.connect(self.show_history)
+        bookmarks_action.triggered.connect(self.show_bookmarks)
+        history_action.triggered.connect(self.show_history)
 
 <<<<<<< HEAD
         # customize
@@ -109,18 +98,7 @@ class MainWindow(QMainWindow):
 
         chatbot_action = QAction('Chatbot', self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
-        self.dropdown_menu.addAction(chatbot_action)
-
-        self.downloaded_files = []
-        self.downloads_action = QAction('Downloads', self)
-        self.downloads_action.triggered.connect(self.show_downloads)
-        self.dropdown_menu.addAction(self.downloads_action)
-
-        self.media_downloader = SaveFromNet()
-
-        media_downloader_action = QAction('Media Downloader', self)
-        media_downloader_action.triggered.connect(self.open_media_downloader)
-        self.dropdown_menu.addAction(media_downloader_action)
+        dropdown_menu.addAction(chatbot_action)
 
         self.add_tab()
 
@@ -128,20 +106,18 @@ class MainWindow(QMainWindow):
         self.overlay_widget = OverlayWidget(self.chat_overlay, parent=self)
         self.overlay_widget.hide()
 
-<<<<<<< HEAD
-=======
         self.load_tabs_data()  # Load saved tabs when the application random
 
     def update_url_from_active_tab(self, index):
         current_browser = self.tabs.widget(index)
         if current_browser:
             self.url_bar.setText(current_browser.url().toString())
-    
+
     def load_tabs_data(self):
         try:
             with open('tabs_data.json', 'r') as file:
                 tabs_data = json.load(file)
-                if not tabs_data:  # Check if the file is empty dee
+                if not tabs_data:  # Check if the file is empty
                     print("No data found in tabs_data.json")
                     return
                 for tab_data in tabs_data:
@@ -192,7 +168,6 @@ class MainWindow(QMainWindow):
         for child in widget.findChildren(QWidget):
             self.decrease_font_size(child, factor)
 
->>>>>>> ed104192b928376829c8d76c367368781b87bd81
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
@@ -256,10 +231,6 @@ class MainWindow(QMainWindow):
 
         self.cookie_overlay.setVisible(not self.cookie_overlay.isVisible())
 
-    def open_customize_dialog(self):
-        customize_dialog = CustomizeDialog(self)
-        customize_dialog.exec_()
-
     def show_history(self):
         if self.current_browser():
             history_menu = QMenu(self)
@@ -299,47 +270,6 @@ class CustomChatbot:
 class SaveFromNet:
     def exec_(self):
         return QDialog.Accepted
-
-class CustomizeDialog(QDialog):
-    def __init__(self, parent=None):
-        super(CustomizeDialog, self).__init__(parent)
-
-        self.setWindowTitle('Customize UI')
-        self.setMinimumWidth(300)
-
-        layout = QVBoxLayout()
-
-        self.dark_mode_radio = QRadioButton('Dark Mode')
-        self.light_mode_radio = QRadioButton('Light Mode')
-        self.default_radio = QRadioButton('Default')
-
-        layout.addWidget(self.dark_mode_radio)
-        layout.addWidget(self.light_mode_radio)
-        layout.addWidget(self.default_radio)
-
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-
-        layout.addWidget(button_box)
-
-        self.setLayout(layout)
-
-        # Connect radio buttons to change_color method
-        self.dark_mode_radio.clicked.connect(lambda: self.change_color("dark"))
-        self.light_mode_radio.clicked.connect(lambda: self.change_color("light"))
-        self.default_radio.clicked.connect(lambda: self.change_color("default"))
-
-    # New method to change the color of the main window
-    def change_color(self, mode):
-        if mode == "dark":
-            self.parent().setStyleSheet("background-color: #333333; color: white;")
-        elif mode == "light":
-            self.parent().setStyleSheet("background-color: #FFFFFF; color: black;")
-        else:
-            # Default color
-            self.parent().setStyleSheet("")
-
 
 class ChatOverlay(QWidget):
     def __init__(self, chatbot, parent=None):
