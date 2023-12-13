@@ -267,7 +267,7 @@ class MainWindow(QMainWindow):
 
         # Media Downloader action in the dropdown
         media_downloader_icon_path = 'Icons/md.png'
-        media_downloader_action = QAction('Media Downloader', self)
+        media_downloader_action = QAction(QIcon(media_downloader_icon_path),'Media Downloader', self)
         media_downloader_action.triggered.connect(self.open_media_downloader)
         self.dropdown_menu.addAction(media_downloader_action)
 
@@ -312,7 +312,9 @@ class MainWindow(QMainWindow):
         for i in range(self.tabs.count()):
             browser = self.tabs.widget(i)
             url = browser.url().toString()
-            tabs_data.append({'url': url})
+            # Exclude 'https://www.google.com/' from being saved
+            if url != 'https://www.google.com/':
+                tabs_data.append({'url': url})
 
         with open('tabs_data.json', 'w') as file:
             json.dump(tabs_data, file)
@@ -325,13 +327,47 @@ class MainWindow(QMainWindow):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
     def add_tab(self, url=None):
+    # Check if there are no tabs open and the JSON file is empty or not found
+        if self.tabs.count() == 0 or (not self.is_tabs_data_file_found() or self.is_tabs_data_empty()):
+            self.open_default_tab()
+        else:
+            browser = QWebEngineView()
+            browser.setPage(CustomWebEnginePage())
+            
+            if url:
+                browser.setUrl(QUrl(url))
+            else:
+                browser.setUrl(QUrl('https://google.com'))
+            
+            self.tabs.addTab(browser, 'New Tab')
+            self.tabs.setCurrentWidget(browser)
+            self.tabs.setTabText(self.tabs.currentIndex(), 'Loading...')
+            
+            browser.titleChanged.connect(lambda title, browser=browser: self.update_tab_title(browser))
+
+            if self.current_browser():
+                browser.urlChanged.connect(lambda url, browser=browser: self.update_url(url) if 
+                    self.current_browser() == browser else None)
+
+    # Helper methods for file and data checks
+    def is_tabs_data_file_found(self):
+        try:
+            with open('tabs_data.json', 'r') as file:
+                return True
+        except FileNotFoundError:
+            return False
+    def is_tabs_data_empty(self):
+        try:
+            with open('tabs_data.json', 'r') as file:
+                tabs_data = json.load(file)
+                return not bool(tabs_data)
+        except json.JSONDecodeError:
+            return True
+        
+    def open_default_tab(self):
         browser = QWebEngineView()
         browser.setPage(CustomWebEnginePage())
-        
-        if url:
-            browser.setUrl(QUrl(url))
-        else:
-            browser.setUrl(QUrl('https://google.com'))
+        browser.setUrl(QUrl('https://google.com'))
         
         self.tabs.addTab(browser, 'New Tab')
         self.tabs.setCurrentWidget(browser)
@@ -342,6 +378,7 @@ class MainWindow(QMainWindow):
         if self.current_browser():
             browser.urlChanged.connect(lambda url, browser=browser: self.update_url(url) if 
                 self.current_browser() == browser else None)
+            
 
     def update_tab_title(self, browser):
         # Get the domain name from the URL without "www."
@@ -441,20 +478,9 @@ class CustomChatbot:
     def get_response(self, user_input):
         return "This is a placeholder response."
     
-'''class SaveFromNet:
-    def __init__(self):
-        self.filename = None
-
-    def get_filename(self):
-        # Implement the logic to get the filename here
-        # For example, you might prompt the user to enter a filename or generate one
-        # In this example, I'm returning a placeholder filename if it's not set
-        if not self.filename:
-            self.filename = "example_filename.txt"
-        return self.filename
-
+class SaveFromNet:
     def exec_(self):
-        return QDialog.Accepted'''
+        return QDialog.Accepted
 
 class CustomizeDialog(QDialog):
     def __init__(self, parent=None):
