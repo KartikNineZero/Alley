@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle('Alley Browser')
-        self.setWindowIcon(QIcon('Icons/Logo.png'))
+        self.setWindowIcon(QIcon('Icons/Logo.ico'))
 
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
@@ -112,26 +112,30 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
 
-        back_btn = QAction(QIcon(QPixmap('Icons/la.png').scaled(icon_width, icon_height)), '⮜', self)
+        back_btn = QAction(QIcon(QPixmap('Icons/la.ico').scaled(icon_width, icon_height)), '⮜', self)
         back_btn.triggered.connect(lambda: self.current_browser().back() if self.current_browser() else None)
         toolbar.addAction(back_btn)
 
-        forward_btn = QAction(QIcon(QPixmap('Icons/ra.png').scaled(icon_width, icon_height)), '⮞', self)
+        forward_btn = QAction(QIcon(QPixmap('Icons/ra.ico').scaled(icon_width, icon_height)), '⮞', self)
         forward_btn.triggered.connect(lambda: self.current_browser().forward() if self.current_browser() else None)
         toolbar.addAction(forward_btn)
 
-        reload_btn = QAction(QIcon(QPixmap('Icons/r.png').scaled(icon_width, icon_height)), '⟳', self)
+        reload_btn = QAction(QIcon(QPixmap('Icons/r.ico').scaled(icon_width, icon_height)), '⟳', self)
         reload_btn.triggered.connect(lambda: self.current_browser().reload() if self.current_browser() else None)
         toolbar.addAction(reload_btn)
 
-        home_btn = QAction(QIcon(QPixmap('Icons/home.png').scaled(icon_width, icon_height)), '⌂', self)
+        home_btn = QAction(QIcon(QPixmap('Icons/home.ico').scaled(icon_width, icon_height)), '⌂', self)
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
 
-        add_tab_btn = QAction(QIcon(QPixmap('Icons/add.png').scaled(icon_width, icon_height)), '+', self)
+        add_tab_btn = QAction(QIcon(QPixmap('Icons/add.ico').scaled(icon_width, icon_height)), '+', self)
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
         
+        inspect_element_action = QAction('🔍', self)
+        inspect_element_action.triggered.connect(self.inspect_element)
+        toolbar.addAction(inspect_element_action)
+
         self.url_bar = QLineEdit()
         self.url_bar.setFixedHeight(30)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
@@ -146,13 +150,13 @@ class MainWindow(QMainWindow):
         """)
         toolbar.addWidget(self.url_bar)
 
-        zoom_in_action = QAction(QIcon(QPixmap('Icons/p.png').scaled(icon_width, icon_height)), '+', self)
+        zoom_in_action = QAction(QIcon(QPixmap('Icons/p.ico').scaled(icon_width, icon_height)), '+', self)
         zoom_in_action.setShortcut('Ctrl++')
         zoom_in_action.triggered.connect(self.zoom_in)
         toolbar.addAction(zoom_in_action)
 	
 	    # Zoom Out action
-        zoom_out_action = QAction(QIcon(QPixmap('Icons/rm.png').scaled(icon_width, icon_height)), '-', self)
+        zoom_out_action = QAction(QIcon(QPixmap('Icons/rm.ico').scaled(icon_width, icon_height)), '-', self)
         zoom_out_action.setShortcut('Ctrl+-')
         zoom_out_action.triggered.connect(self.zoom_out)
         toolbar.addAction(zoom_out_action)
@@ -167,7 +171,7 @@ class MainWindow(QMainWindow):
         dropdown_btn = QToolButton(self)
         dropdown_btn.setMenu(self.dropdown_menu)
         dropdown_btn.setPopupMode(QToolButton.InstantPopup)
-        dropdown_btn.setIcon(QIcon('Icons/menu.png'))
+        dropdown_btn.setIcon(QIcon('Icons/menu.ico'))
 
         dropdown_btn.setStyleSheet("""
     QToolButton {
@@ -223,13 +227,13 @@ class MainWindow(QMainWindow):
 
         self.dropdown_menu.setStyleSheet(dropdown_menu_style)
 
-        # Replace 'Icons/bookmarks_icon.png' with the actual path to your bookmarks icon
-        bookmarks_icon_path = 'Icons/bm.png'
+        # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
+        bookmarks_icon_path = 'Icons/bm.ico'
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
 
 
-        # Replace 'Icons/history_icon.png' with the actual path to your history icon
-        history_icon_path = 'Icons/h.png'
+        # Replace 'Icons/history_icon.ico' with the actual path to your history icon
+        history_icon_path = 'Icons/h.ico'
         self.history_action.setIcon(QIcon(history_icon_path))
 
         toolbar.addWidget(dropdown_btn)
@@ -237,8 +241,11 @@ class MainWindow(QMainWindow):
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
         self.history_action.triggered.connect(self.show_history)
 
+        
+
+
         # customize
-        self.customize_ui_action = QAction(QIcon('Icons/dm.png'), 'Dark', self)
+        self.customize_ui_action = QAction(QIcon('Icons/dm.ico'), 'Dark', self)
         self.customize_ui_action.triggered.connect(self.open_customize_dialog)
         self.dropdown_menu.addAction(self.customize_ui_action) 
 
@@ -250,14 +257,14 @@ class MainWindow(QMainWindow):
         self.chatbot = CustomChatbot()
 
         # Action for opening chatbot overlay
-        chatbot_icon_path = 'Icons/cb.png'
+        chatbot_icon_path = 'Icons/cb.ico'
         chatbot_action = QAction(QIcon(chatbot_icon_path),'Chatbot', self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
         self.dropdown_menu.addAction(chatbot_action)
 
         # Downloads action in the dropdown
         self.downloaded_files = []  # List to keep track of downloaded files
-        downloads_icon_path = 'Icons/d.png'
+        downloads_icon_path = 'Icons/d.ico'
         self.downloads_action = QAction(QIcon(downloads_icon_path),'Downloads', self)
         self.downloads_action.triggered.connect(self.show_downloads)
         self.dropdown_menu.addAction(self.downloads_action)
@@ -266,12 +273,14 @@ class MainWindow(QMainWindow):
         self.media_downloader = SaveFromNet()
 
         # Media Downloader action in the dropdown
-        media_downloader_icon_path = 'Icons/md.png'
+        media_downloader_icon_path = 'Icons/md.ico'
         media_downloader_action = QAction(QIcon(media_downloader_icon_path),'Media Downloader', self)
         media_downloader_action.triggered.connect(self.open_media_downloader)
         self.dropdown_menu.addAction(media_downloader_action)
 
         self.add_tab()
+
+
 
         # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
@@ -475,6 +484,24 @@ class MainWindow(QMainWindow):
         if self.current_browser():
             self.current_browser().setZoomFactor(self.current_browser().zoomFactor() - 0.1)
 
+    def inspect_element(self):
+        if self.current_browser():
+            # Get the current browser page
+            page = self.current_browser().page()
+            # Enable remote debugging
+            page.settings().setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
+            # Create a new QWebEngineView for DevTools
+            dev_tools_browser = QWebEngineView()
+            dev_tools_browser.page().setDevToolsPage(page)
+            # Create a QDockWidget to contain the DevTools browser
+            dock_widget = QDockWidget('DevTools', self)
+            dock_widget.setWidget(dev_tools_browser)
+            dock_widget.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
+            # Set the QDockWidget to be a right dock
+            self.addDockWidget(Qt.LeftDockWidgetArea, dock_widget)
+            # Open DevTools using the remote debugging URL
+            dev_tools_url = page.url().toString().replace('http://', 'chrome-devtools://devtools/remote/')
+            dev_tools_browser.setUrl(QUrl(dev_tools_url))
 #commenting this class for now -kellidan
 #class CustomChatbot:
     #def get_response(self, user_input):
@@ -636,11 +663,11 @@ class OverlayWidget(QWidget):
 
         # Add actions to the menu with icons
         actions = [
-            ("Bookmarks", self.show_bookmarks,"Icons/bm.png"),
-            ("History", self.show_history, "Icons/h.png"),
-            ("Chatbot", self.open_chatbot_overlay, "Icons/cb.png"),
-            ("Downloads", self.show_downloads, "Icons/d.png"),
-            ("Media Downloader", self.open_media_downloader, "Icons/md.png"),
+            ("Bookmarks", self.show_bookmarks,"Icons/bm.ico"),
+            ("History", self.show_history, "Icons/h.ico"),
+            ("Chatbot", self.open_chatbot_overlay, "Icons/cb.ico"),
+            ("Downloads", self.show_downloads, "Icons/d.ico"),
+            ("Media Downloader", self.open_media_downloader, "Icons/md.ico"),
         ]
 
         for action_text, slot, icon_path in actions:
