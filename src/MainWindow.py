@@ -299,6 +299,16 @@ class MainWindow(QMainWindow):
 
         self.add_tab()
 
+
+        # Create the 'Inspect' action
+        inspect_icon_path = "Icons/inspect.png"
+        inspect_action = QAction(
+          QIcon(inspect_icon_path), "Inspect", self
+        )
+        inspect_action.triggered.connect(self.inspect_element)
+        self.dropdown_menu.addAction(inspect_action)
+
+
         # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
         self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
