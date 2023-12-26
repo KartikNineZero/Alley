@@ -40,79 +40,12 @@ class MainWindow(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.setCentralWidget(self.tabs)
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
-
-        self.tabs.setStyleSheet(
-            """
-    QTabWidget::pane {
-        background-color: #3ab4e1; /* Edge Blue Color */
-        border-radius: 0; /* Remove border-radius */
-    }
-    
-    QTabWidget::tab-bar {
-        alignment: left;
-    }
-    QTabBar::tab {
-        background-color: #3ab4e1; /* Lightened Blue Color */
-        border: none; /* Remove border */
-        padding: 8px 20px;
-        color: white;
-        min-width: 120px;
-    }
-    QTabBar::tab:selected {
-        background-color: #4f93e6; /* Lightened Selected Tab Background Color */
-    }
-"""
-        )
-
         toolbar = QToolBar()
-        toolbar.setStyleSheet(
-            """
-    QToolBar {
-        background-color: #3ab4e1; /* Edge Blue Color */
-        color: white;
-        spacing: 10px;
-        border-radius: none; /* Add border-radius for a curved toolbar */
-    }
-    QToolButton {
-        background-color: #3ab4e1; /* Edge Blue Color */
-        border: none;
-        color: white;
-        font-size: 20px;
-        padding: 8px;
-        border-radius: 5px; /* Add border-radius for a curved button */
-    }
-    QToolButton:hover {
-	    background-color: #3498db; /* Change color on hover */
-	}                          
-    QLineEdit {
-        height: 30px;
-        border: 1px solid #000000; /* Edge Blue Color */
-        padding: 2px;
-        color: white; /* Set text color to white */
-        background-color: black; /* Set background color to black */
-        font-size: 16px;
-        border-radius: 5px; /* Add border-radius for a curved input field */
-    }
-    QMenu {
-        background-color: #FFF;
-        font-size: 16px;
-        border-radius: 5px; /* Add border-radius for a curved menu */
-    }
-    QMenu::item {
-        padding: 8px 20px;
-        border-radius: 5px; /* Add border-radius for curved menu items */
-    }
-    QMenu::item:selected {
-        background-color: #2a1f68; /* Selected Item Background Color */
-    }
-    QTabMenu{
-        
-    }
-"""
-        )
         self.addToolBar(toolbar)
         icon_width = 20
         icon_height = 20
+        self.icon_width = 20
+        self.icon_height = 20 
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
 
@@ -121,7 +54,7 @@ class MainWindow(QMainWindow):
         )
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
-
+        
         back_btn = QAction(
             QIcon(QPixmap("Icons/la.png").scaled(icon_width, icon_height)), "⮜", self
         )
@@ -136,12 +69,6 @@ class MainWindow(QMainWindow):
             lambda: self.current_browser().forward() if self.current_browser() else None
         )
         toolbar.addAction(forward_btn)
-        
-
-        inspect_element_action = QAction("🔍", self)
-        inspect_element_action.triggered.connect(self.inspect_element)
-        toolbar.addAction(inspect_element_action)
-        
         reload_btn = QAction(
             QIcon(QPixmap("Icons/r.png").scaled(icon_width, icon_height)), "⟳", self
         )
@@ -153,17 +80,6 @@ class MainWindow(QMainWindow):
         self.url_bar = QLineEdit()
         self.url_bar.setFixedHeight(30)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
-        self.url_bar.setStyleSheet(
-            """
-            height: 30px;
-            border: 1px solid #000000; /* Edge Blue Color */
-            padding: 5px 10px;
-            color: white; /* Set text color to white */
-            background-color: black; /* Set background color to black */
-            font-size: 13px;
-            border-radius: 5px; /* Add border-radius for rounded corners */
-        """
-        )
         toolbar.addWidget(self.url_bar)
         
         add_tab_btn = QAction(
@@ -172,21 +88,8 @@ class MainWindow(QMainWindow):
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
 
-        zoom_in_action = QAction(
-            QIcon(QPixmap("Icons/p.png").scaled(icon_width, icon_height)), "+", self
-        )
-        zoom_in_action.setShortcut("Ctrl++")
-        zoom_in_action.triggered.connect(self.zoom_in)
-        toolbar.addAction(zoom_in_action)
-        # Zoom Out action
-        zoom_out_action = QAction(
-            QIcon(QPixmap("Icons/rm.png").scaled(icon_width, icon_height)), "-", self
-        )
-        zoom_out_action.setShortcut("Ctrl+-")
-        zoom_out_action.triggered.connect(self.zoom_out)
-        toolbar.addAction(zoom_out_action)
-
         self.dropdown_menu = QMenu(self)
+        self.dropdown_menu.setStyleSheet("width: 280px; height: 310px; border-radius: 10px;")
         self.bookmarks_action = QAction("Bookmarks", self)
         self.history_action = QAction("History", self)
         self.customize_ui_action = QAction("Customize", self)
@@ -197,63 +100,29 @@ class MainWindow(QMainWindow):
         dropdown_btn.setMenu(self.dropdown_menu)
         dropdown_btn.setPopupMode(QToolButton.InstantPopup)
         dropdown_btn.setIcon(QIcon("Icons/menu.png"))
+        # Add a separator to make the menu visually more appealing
+        self.dropdown_menu.addSeparator()
 
-        dropdown_btn.setStyleSheet(
-            """
-    QToolButton {
-        background-color: #3ab4e1; /* Change to your desired background color */
-        border: none;
-        color: white;
-        font-size: 20px;
-        padding: 8px;
-        border-radius: 5px; /* Add border-radius for a curved button */
-    }
-    QToolButton:hover {
-        background-color: #3498db; /* Change color on hover */
-    }
-    QToolButton::menu-indicator {
-        image: none; /* Hide the menu indicator arrow */
-    }
-    QMenu {
-        background-color: #3498db; /* Change to your desired background color */
-        font-size: 16px;
-        border-radius: 5px; /* Add border-radius for a curved menu */
-    }
-    QMenu::item {
-        background-color: #3498db; /* Change to your desired background color */
-        padding: 8px 20px;
-        border-radius: 5px; /* Add border-radius for curved menu items */
-    }
-    QMenu::item:selected {
-        background-color: #2980b9; /* Selected Item Background Color */
-    }
-    QMenuBar {
-        background-color: #2980b9; /* Background color for the menu bar */
-    }
-"""
-        )
-        dropdown_menu_style = """
-    QMenu {
-        background-color: #000; /* Change to your desired background color */
-        font-size: 16px;
-        border: 3px solid #fff;
-        border-radius: 5px; /* Add border-radius for a curved menu */
-        padding: 10px;
-    }
-    QMenu::item {
-        background-color: #000; /* Change to your desired background color */
-        padding: 8px 20px;
-        border-radius: 5px; /* Add border-radius for curved menu items */
-        color: white; /* Set text color to white */
+        # Zoom Out action in the dropdown
+        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.png').scaled(icon_width, icon_height)), '', self)
+        zoom_out_dropdown_action.triggered.connect(self.zoom_out)
+        self.dropdown_menu.addAction(zoom_out_dropdown_action)
+        zoom_action = self.dropdown_menu.addAction("Zoom")
+        # Zoom In action in the dropdown
+        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.png').scaled(icon_width, icon_height)), '', self)
+        zoom_in_dropdown_action.triggered.connect(self.zoom_in)
+        self.dropdown_menu.addAction(zoom_in_dropdown_action)
+        self.dropdown_menu.addSeparator()
+
+        self.dropdown_menu.addSeparator()
+        # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
+        bookmarks_icon_path = 'Icons/saved.png'
+        self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
+
+        inspect_element_action_dropdown = QAction(QIcon('Icons/dev.png'), 'Dev tool', self)
+        inspect_element_action_dropdown.triggered.connect(self.inspect_element)
+        self.dropdown_menu.addAction(inspect_element_action_dropdown)
         
-    }
-    QMenu::item:selected {
-        background-color: #3498db; /* Selected Item Background Color */
-    }
-"""
-
-        self.dropdown_menu.setStyleSheet(dropdown_menu_style)
-
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
         bookmarks_icon_path = "Icons/bm.png"
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
@@ -304,16 +173,6 @@ class MainWindow(QMainWindow):
 
         self.add_tab()
 
-
-        # Create the 'Inspect' action
-        inspect_icon_path = "Icons/inspect.png"
-        inspect_action = QAction(
-          QIcon(inspect_icon_path), "Inspect", self
-        )
-        inspect_action.triggered.connect(self.inspect_element)
-        self.dropdown_menu.addAction(inspect_action)
-
-
         # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
         self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
@@ -321,6 +180,28 @@ class MainWindow(QMainWindow):
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
         self.load_tabs_data()  # Load saved tabs when the application starts
+
+    def set_zoom_factor(self, factor):
+        if self.current_browser():
+            self.current_browser().setZoomFactor(factor)
+            self.update_zoom_label()
+
+    def zoom_in(self):
+        if self.current_browser():
+            current_factor = self.current_browser().zoomFactor()
+            self.current_browser().setZoomFactor(current_factor + 0.1)
+            self.update_zoom_label()
+
+    def zoom_out(self):
+        if self.current_browser():
+            current_factor = self.current_browser().zoomFactor()
+            self.current_browser().setZoomFactor(max(current_factor - 0.1, 0.1))
+            self.update_zoom_label()
+
+    def update_zoom_label(self):
+        if self.current_browser():
+            zoom_percentage = int(self.current_browser().zoomFactor() * 100)
+            self.statusBar().showMessage(f"Zoom: {zoom_percentage}%")
 
     def update_url_from_active_tab(self, index):
         current_browser = self.tabs.widget(index)
@@ -491,11 +372,48 @@ class MainWindow(QMainWindow):
             self.update_url(current_browser.url())
 
     def show_bookmarks(self):
-        if not hasattr(self, "bookmarks_manager"):
+        if not hasattr(self, 'bookmarks_manager'):
+            self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
+            self.layout().addWidget(self.bookmarks_manager)
+
+        bookmarks = ["Bookmark 1", "Bookmark 2", "Bookmark 3"]  # Replace with your actual bookmarks data
+        self.bookmark_dialog = BookmarkDialog(self)
+        self.bookmark_dialog.populate_bookmarks(bookmarks)
+
+        result = self.bookmark_dialog.exec_()
+        if result == QDialog.Accepted:
+            # Handle bookmark selection if needed
+            pass
+
+    def show_bookmark_dialog(self):
+        dialog = BookmarkDialog(self)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            bookmark_name = dialog.get_bookmark_name()
+            current_url = self.url_bar.text()
+
+            if bookmark_name and current_url:
+                # Save the bookmark (you can implement your saving logic here)
+                print(f"Bookmark saved - Name: {bookmark_name}, URL: {current_url}")
+            else:
+                print("Bookmark not saved - Name or URL is empty.")
+
+    def create_toolbar_action(self, icon_path, callback, shortcut=None, text=''):
+        # Use self.icon_width and self.icon_height to access class attributes
+        action = QAction(QIcon(QPixmap(icon_path).scaled(self.icon_width, self.icon_height)), text, self)
+        if shortcut:
+            action.setShortcut(shortcut)
+        if text == 'Bookmark':
+            action.triggered.connect(self.show_bookmark_dialog)  # Corrected this line
+        else:
+            action.triggered.connect(callback)
+        return action
+
+    def show_bookmarks(self):
+        if not hasattr(self, 'bookmarks_manager'):
             self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
             self.layout().addWidget(self.bookmarks_manager)  # Fixed the typo here
         self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
-
     def open_customize_dialog(self):
         customize_dialog = CustomizeDialog(self)
         customize_dialog.exec_()
@@ -537,18 +455,6 @@ class MainWindow(QMainWindow):
         QMessageBox.information(
             self, "Downloads", f"Downloaded Files:\n{downloads_text}"
         )
-
-    def zoom_in(self):
-        if self.current_browser():
-            self.current_browser().setZoomFactor(
-                self.current_browser().zoomFactor() + 0.1
-            )
-
-    def zoom_out(self):
-        if self.current_browser():
-            self.current_browser().setZoomFactor(
-                self.current_browser().zoomFactor() - 0.1
-            )
 
     def inspect_element(self):
         if self.current_browser():

@@ -18,18 +18,6 @@ class BookmarksManager(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.on_item_clicked)
         self.list_widget.setFixedSize(300, 500)
-        self.list_widget.setStyleSheet(
-            """
-            QListWidget {
-                background-color: #F5F5F5;
-                border: 1px solid #CCCCCC;
-            }
-
-            QListWidget:item {
-                padding: 5px;
-            }
-            """
-        )
         self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list_widget.customContextMenuRequested.connect(self.show_context_menu)
         layout.addWidget(self.list_widget)
@@ -51,29 +39,11 @@ class BookmarksManager(QWidget):
         add_button = QPushButton('Add Bookmark')
         add_button.clicked.connect(self.add_bookmark)
         add_button.setMaximumWidth(280)
-        add_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                padding: 5px;
-            }
-            """
-        )
         input_layout.addWidget(add_button)
 
         close_button = QPushButton('Close')
         close_button.clicked.connect(self.close_overlay)
         close_button.setMaximumWidth(280)
-        close_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #FF0000;
-                color: white;
-                padding: 5px;
-            }
-            """
-        )
         input_layout.addWidget(close_button)
 
         layout.addLayout(input_layout)

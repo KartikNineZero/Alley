@@ -26,21 +26,6 @@ class OverlayWidget(QWidget):
 
     def create_dropdown_menu(self):
         menu = QMenu(self)
-        menu.setStyleSheet(
-            """
-            QMenu {
-                background-color: #4d31b6; /* Menu Background Color */
-                color: white;
-                border: 1px solid #2a1f68; /* Border Color */
-            }
-            QMenu::item {
-                padding: 8px 20px;
-            }
-            QMenu::item:selected {
-                background-color: #2a1f68; /* Selected Item Background Color */
-            }
-            """
-        )
 
         # Add actions to the menu with icons
         actions = [

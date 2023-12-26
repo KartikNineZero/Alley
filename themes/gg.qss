@@ -1,0 +1,121 @@
+QWidget, QDialog, QMainWindow, QWebEngineView, QColorDialog {
+    background-color: #00A9FF;
+}
+
+QDialog, QTextEdit, QPlainTextEdit, QPushButton, QToolButton, QLineEdit,
+QLabel, QLCDNumber, QProgressBar, QMenu, QMenuBar, QTabWidget, QCheckBox,
+QRadioButton, QStatusBar, QSpinBox, QDoubleSpinBox, QTimeEdit, QDateTimeEdit,
+QDateEdit, QComboBox, QFontComboBox, QToolBox, QScrollArea {
+    color: #000000;
+    background-color: #5FBDFF;
+}
+
+/* Tab styles */
+QTabWidget::pane {
+    background-color: #00A9FF;
+    border-radius: 5px;
+}
+
+QTabWidget::tab-bar {
+    alignment: left;
+}
+
+QTabBar::tab {
+    background-color: #00A9FF;
+    border: none;
+    padding: 8px 20px;
+    color: white;
+    min-width: 120px;
+}
+
+QTabBar::tab:selected {
+    background-color: #7B66FF;
+}
+
+/* Toolbar styles */
+QToolBar {
+    background-color: #00A9FF;
+    color: white;
+    spacing: 10px;
+    border-radius: 5px;
+}
+
+QToolButton {
+    background-color: #00A9FF;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+QToolButton:hover {
+    background-color: #7B66FF;
+}
+
+QToolButton::menu-indicator {
+    image: none; /* Hide the menu indicator arrow */
+}
+
+QLineEdit {
+    height: 30px;
+    border: 1px solid #00A9FF;
+    padding: 5px;
+    color: white;
+    background-color: #333333;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+/* Menu styles */
+QMenuBar {
+    background-color: #7B66FF;
+    color: #FFFFFF;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+QMenuBar::item {
+    border-style: solid;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    border-bottom-width: 2px;
+    color: #FFFFFF;
+    padding: 5px 15px;
+    background-color: #333333;
+}
+
+QMenuBar::item:selected {
+    border-bottom-width: 2px;
+    color: #FFFFFF;
+    background-color: #555555;
+}
+
+QMenu {
+    background-color: #7B66FF;
+    font-size: 16px;
+    border-radius: 5px;
+    border-width: 2px;
+    spacing: 3px;
+    padding: 3px 15px;
+}
+
+QMenu::item {
+    background-color: #ededed;
+    padding: 10px 20px;
+    margin: 2px;
+    border-width: 1px;
+}
+
+QMenu::item:selected {
+    spacing: 3px;
+    padding: 3px 15px;
+    background: rgb(115, 115, 115);
+    color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: rgb(58, 58, 58);
+    border-style: inset;
+}
