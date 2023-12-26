@@ -137,12 +137,6 @@ class MainWindow(QMainWindow):
         )
         toolbar.addAction(forward_btn)
         
-        
-        add_tab_btn = QAction(
-            QIcon(QPixmap("Icons/add.png").scaled(icon_width, icon_height)), "+", self
-        )
-        add_tab_btn.triggered.connect(self.add_tab)
-        toolbar.addAction(add_tab_btn)
 
         inspect_element_action = QAction("🔍", self)
         inspect_element_action.triggered.connect(self.inspect_element)
@@ -171,6 +165,13 @@ class MainWindow(QMainWindow):
         """
         )
         toolbar.addWidget(self.url_bar)
+        
+        add_tab_btn = QAction(
+            QIcon(QPixmap("Icons/add.png").scaled(icon_width, icon_height)), "+", self
+        )
+        add_tab_btn.triggered.connect(self.add_tab)
+        toolbar.addAction(add_tab_btn)
+
         zoom_in_action = QAction(
             QIcon(QPixmap("Icons/p.png").scaled(icon_width, icon_height)), "+", self
         )
