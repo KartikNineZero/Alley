@@ -50,27 +50,27 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_tab)
 
         home_btn = QAction(
-            QIcon(QPixmap("Icons/home.png").scaled(icon_width, icon_height)), "⌂", self
+            QIcon(QPixmap("Icons/home.png").scaled(icon_width, icon_height)), "⌂ HomePage", self
         )
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
         
         back_btn = QAction(
-            QIcon(QPixmap("Icons/la.png").scaled(icon_width, icon_height)), "⮜", self
+            QIcon(QPixmap("Icons/la.png").scaled(icon_width, icon_height)), "⮜ Navigate to Previous Page", self
         )
         back_btn.triggered.connect(
             lambda: self.current_browser().back() if self.current_browser() else None
         )
         toolbar.addAction(back_btn)
         forward_btn = QAction(
-            QIcon(QPixmap("Icons/ra.png").scaled(icon_width, icon_height)), "⮞", self
+            QIcon(QPixmap("Icons/ra.png").scaled(icon_width, icon_height)), "⮞ Navigate to Next Page", self
         )
         forward_btn.triggered.connect(
             lambda: self.current_browser().forward() if self.current_browser() else None
         )
         toolbar.addAction(forward_btn)
         reload_btn = QAction(
-            QIcon(QPixmap("Icons/r.png").scaled(icon_width, icon_height)), "⟳", self
+            QIcon(QPixmap("Icons/r.png").scaled(icon_width, icon_height)), "⟳ Reload the Page", self
         )
         reload_btn.triggered.connect(
             lambda: self.current_browser().reload() if self.current_browser() else None
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(self.url_bar)
         
         add_tab_btn = QAction(
-            QIcon(QPixmap("Icons/add.png").scaled(icon_width, icon_height)), "+", self
+            QIcon(QPixmap("Icons/add.png").scaled(icon_width, icon_height)), "+ New Tab", self
         )
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
@@ -103,16 +103,26 @@ class MainWindow(QMainWindow):
         # Add a separator to make the menu visually more appealing
         self.dropdown_menu.addSeparator()
 
-        # Zoom Out action in the dropdown
-        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.png').scaled(icon_width, icon_height)), '', self)
-        zoom_out_dropdown_action.triggered.connect(self.zoom_out)
-        self.dropdown_menu.addAction(zoom_out_dropdown_action)
-        zoom_action = self.dropdown_menu.addAction("Zoom")
-        # Zoom In action in the dropdown
-        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.png').scaled(icon_width, icon_height)), '', self)
+        # Create actions for zoom in and zoom out
+        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.png').scaled(self.icon_width, self.icon_height)), 'Zoom In', self)
         zoom_in_dropdown_action.triggered.connect(self.zoom_in)
-        self.dropdown_menu.addAction(zoom_in_dropdown_action)
+
+        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.png').scaled(self.icon_width, self.icon_height)), 'Zoom Out', self)
+        zoom_out_dropdown_action.triggered.connect(self.zoom_out)
+
+        # Add a separator before adding zoom actions
         self.dropdown_menu.addSeparator()
+
+        # Add zoom in and zoom out actions to the dropdown menu
+        self.dropdown_menu.addAction(zoom_out_dropdown_action)
+        self.dropdown_menu.addAction(zoom_in_dropdown_action)
+
+        # Create action for reset zoom
+        reset_zoom_action = QAction(QIcon('Icons/reset_zoom.png'), 'Reset Zoom', self)
+        reset_zoom_action.triggered.connect(self.reset_zoom)
+
+        # Add reset zoom action to the dropdown menu
+        self.dropdown_menu.addAction(reset_zoom_action)
 
         self.dropdown_menu.addSeparator()
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
@@ -180,6 +190,11 @@ class MainWindow(QMainWindow):
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
         self.load_tabs_data()  # Load saved tabs when the application starts
+
+    def reset_zoom(self):
+        if self.current_browser():
+            self.current_browser().setZoomFactor(1.0)
+            self.update_zoom_label()
 
     def set_zoom_factor(self, factor):
         if self.current_browser():
