@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QHBoxLayout, QLabel, QWidget
 
 
 class ChatOverlay(QWidget):
@@ -14,11 +15,33 @@ class ChatOverlay(QWidget):
         input_container = QWidget()
         input_layout = QVBoxLayout(input_container)
 
+
+
+        # Container for chat input and X button
+        input_and_exit_container = QWidget()
+        input_and_exit_layout = QHBoxLayout(input_and_exit_container)
+
+
+
         # Set white background for chat input
         self.user_input = QLineEdit()
         self.user_input.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         self.user_input.setPlaceholderText("Type your message...")
-        input_layout.addWidget(self.user_input)
+        input_and_exit_layout.addWidget(self.user_input)
+
+
+
+
+        # Set white background for the exit button
+        exit_button = QPushButton("X")
+        exit_button.setStyleSheet("background-color: red; color: white;")
+        exit_button.clicked.connect(self.exit_overlay)
+        input_and_exit_layout.addWidget(exit_button)
+
+        layout.addWidget(input_and_exit_container)
+
+
+
 
         # Set white background for the submit button
         submit_button = QPushButton("Submit")
@@ -42,10 +65,13 @@ class ChatOverlay(QWidget):
         clear_button.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         clear_button.clicked.connect(self.clear_chat_display)
         display_layout.addWidget(clear_button)
+
+
+        '''
         exit_button = QPushButton("Exit")
         exit_button.setStyleSheet("background-color: black; color: White; border: 5px solid black;")
         exit_button.clicked.connect(self.exit_overlay)
-        display_layout.addWidget(exit_button)
+        display_layout.addWidget(exit_button)'''
 
         layout.addWidget(display_container)
 
@@ -55,7 +81,7 @@ class ChatOverlay(QWidget):
         self.setLayout(layout)
 
         # Set the size of ChatOverlay to be similar to BookmarksManager
-        self.setFixedSize(300, 500)  # Adjust the size as needed
+        self.setFixedSize(400, 700)  # Adjust the size as needed
 
     def exit_overlay(self):
         self.hide()
