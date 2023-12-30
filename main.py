@@ -5,7 +5,7 @@ from src.MainWindow import MainWindow
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    style_path = 'themes/aqua.qss'
+    style_path = 'themes/c77.qss'
     with open(style_path, 'r') as f:
         app.setStyleSheet(f.read())
     app.setApplicationName("Alley")

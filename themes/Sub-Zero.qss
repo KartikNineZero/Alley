@@ -1,0 +1,63 @@
+/* General styling */
+QMainWindow { background-color: #000; }
+QDialog { background-color: #DDF2FD; color: #000; }
+QRadioButton { color: #000; font-size: 16px; }
+
+/* Styling for QDialogButtonBox */
+QDialogButtonBox button {
+    background-color: #068FFF; color: #FFF;
+    border: 1px solid #0077CC; border-radius: 5px;
+    padding: 5px 10px; margin: 5px;
+}
+QDialogButtonBox button:hover { background-color: #0077CC; border: 1px solid #005599; }
+QDialogButtonBox button:pressed { background-color: #005599; border: 1px solid #003366; }
+
+/* Styling for QToolBar */
+QToolBar { background-color: #068FFF; }
+QToolBar:hover { background-color: #0077CC; }
+
+/* Styling for QLineEdit */
+QLineEdit {
+    height: 30px; border: 1px solid #00A9FF;
+    padding: 5px; color: white; background-color: #333333;
+    font-size: 14px; border-radius: 5px;
+}
+QToolButton::menu-indicator { image: none; }
+
+/* Styling for QTabWidget */
+QTabWidget::pane { background-color: #000; }
+QTabWidget::tab-bar { alignment: left; }
+
+/* Styling for QTabBar */
+QTabBar::tab {
+    background-color: #333333; padding: 8px;
+    min-width: 100px; color: #FFF;
+}
+QTabBar::tab:hover { background-color: #555555; }
+QTabBar::tab:selected { background-color: #000; }
+
+/* Styling for QMenu */
+QMenu {
+    background-color: #54a1c8; border-radius: 1px;
+    border: solid 3px #000;
+}
+QMenu::item { padding: 5px 80px; color: #FFF; }
+QMenu::item:selected { background-color: #005288; }
+
+/* Styling for QPushButton */
+QPushButton {
+    background-color: #000; color: #DFE1E2;
+    border-radius: 4px; padding: 2px;
+    outline: none; border: none;
+}
+QPushButton:disabled, QPushButton:checked:disabled {
+    background-color: #000; color: #788D9C; border-radius: 4px; padding: 2px;
+}
+QPushButton:checked, QPushButton:checked:selected, QPushButton:selected {
+    background: #000; outline: none;
+}
+QPushButton:hover { background-color: #005288; color: #DFE1E2; }
+QPushButton:pressed, QPushButton:checked:pressed { background-color: #000; }
+
+/* Styling for QDialogButtonBox QPushButton */
+QDialogButtonBox QPushButton { min-width: 80px; }

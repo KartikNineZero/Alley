@@ -1,5 +1,5 @@
 import re
-
+import os
 from PyQt5.QtCore import QUrl, Qt
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView
@@ -135,6 +135,16 @@ class MainWindow(QMainWindow):
         self.dropdown_menu.addAction(reset_zoom_action)
 
         self.dropdown_menu.addSeparator()
+
+        personalization_menu = self.dropdown_menu.addMenu("Themes")
+        # Add theme actions dynamically from the Themes folder
+        themes_folder = "themes"
+        themes = self.get_available_themes(themes_folder)
+        for theme in themes:
+            theme_action = QAction(theme, self)
+            theme_action.triggered.connect(lambda _, t=theme: self.apply_theme(t))
+            personalization_menu.addAction(theme_action)
+            
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
         bookmarks_icon_path = 'Icons/saved.png'
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
@@ -506,3 +516,15 @@ class MainWindow(QMainWindow):
                 .replace("http://", "chrome-devtools://devtools/remote/")
             )
             dev_tools_browser.setUrl(QUrl(dev_tools_url))
+
+    def get_available_themes(self, themes_folder):
+        themes = []
+        if os.path.exists(themes_folder):
+            themes = [f for f in os.listdir(themes_folder) if f.endswith(".qss")]
+        return themes
+
+    def apply_theme(self, theme):
+        theme_path = os.path.join("Themes", theme)
+        with open(theme_path, "r") as file:
+            qss_content = file.read()
+            self.setStyleSheet(qss_content)
