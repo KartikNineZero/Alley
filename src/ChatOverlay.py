@@ -75,9 +75,6 @@ class ChatOverlay(QWidget):
 
         layout.addWidget(display_container)
 
-        # Set white background for the ChatOverlay widget
-        self.setStyleSheet("background-color: #5D3BB6; border: 1px solid black;")
-
         self.setLayout(layout)
 
         # Set the size of ChatOverlay to be similar to BookmarksManager
@@ -92,11 +89,6 @@ class ChatOverlay(QWidget):
     def get_chatbot_response(self):
         user_input = self.user_input.text()
         response = self.chatbot.get_response(user_input)
-
-        # Style for user messages (blue text)
-        user_style = '<span style="color: #d265b7;">You: </span>'
-        # Style for chatbot replies (green text)
-        chatbot_style = '<span style="color: #b765d2;">Chatbot: </span>'
 
         # Append user message and chatbot reply to chat_display
         self.chat_display.append(f"{user_style}{user_input}")
