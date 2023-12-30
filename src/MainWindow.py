@@ -87,19 +87,16 @@ class MainWindow(QMainWindow):
         )
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
-
-        # Add a bookmark button to the toolbar
-        self.bookmarks_action = QAction(QIcon("Icons/bm.png"), "Bookmarks", self)
-        self.bookmarks_action.triggered.connect(self.show_bookmarks)
-        self.bookmarks_action = QAction(QIcon("Icons/bm.png"),"Bookmarks", self)
-
-        # Connect the bookmarks action to show bookmarks when triggered
-        self.bookmarks_action.triggered.connect(self.show_bookmarks)
+        
+        self.bookmarks_action = QAction(
+            QIcon(QPixmap("Icons/bm.png").scaled(icon_width,icon_height)),
+            "Bookmarks",
+            self,
+        )
         
         toolbar.addAction(self.bookmarks_action)
 
         self.dropdown_menu = QMenu(self)
-        self.dropdown_menu.setStyleSheet("width: 280px; height: 310px; border-radius: 10px;")
         self.bookmarks_action = QAction("Bookmarks", self)
         self.history_action = QAction("History", self)
         self.customize_ui_action = QAction("Customize", self)
