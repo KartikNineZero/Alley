@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
         self.dropdown_menu.addAction(zoom_in_dropdown_action)
 
         # Create action for reset zoom
-        reset_zoom_action = QAction(QIcon('Icons/reset_zoom.png'), 'Reset Zoom', self)
+        reset_zoom_action = QAction(QIcon('Icons/reset_zoom_icon.png'), 'Reset Zoom', self)
         reset_zoom_action.triggered.connect(self.reset_zoom)
 
         # Add reset zoom action to the dropdown menu
