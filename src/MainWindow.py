@@ -28,8 +28,8 @@ from src.BookmarksManager import BookmarksManager
 
 
 class MainWindow(QMainWindow):
-    def _init_(self):
-        super(MainWindow, self)._init_()
+    def __init__(self):
+        super(MainWindow, self).__init__()
 
         self.setWindowTitle("Alley Browser")
         self.setWindowIcon(QIcon("Icons/Logo.png"))
@@ -312,9 +312,8 @@ class MainWindow(QMainWindow):
                     if self.current_browser() == browser
                     else None
                 )
-                
-                #allows download of images
-                browser.page().profile().downloadRequested.connect(self.on_download_requested)
+            
+            browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
     # Helper methods for file and data checks
     def is_tabs_data_file_found(self):
@@ -376,6 +375,7 @@ class MainWindow(QMainWindow):
             browser_widget.deleteLater()
 
     def navigate_home(self):
+
         if self.current_browser():
             self.current_browser().setUrl(QUrl("https://duckduckgo.com/"))
 
