@@ -24,13 +24,12 @@ from src.CustomChatbot import CustomChatbot
 from src.CustomizeDialog import CustomizeDialog
 from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
-from src.CustomWebEnginePage import CustomWebEnginePage
 from src.BookmarksManager import BookmarksManager
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
+    def _init_(self):
+        super(MainWindow, self)._init_()
 
         self.setWindowTitle("Alley Browser")
         self.setWindowIcon(QIcon("Icons/Logo.png"))
@@ -293,7 +292,6 @@ class MainWindow(QMainWindow):
             self.open_default_tab()
         else:
             browser = QWebEngineView()
-            browser.setPage(CustomWebEnginePage())
 
             if url:
                 browser.setUrl(QUrl(url))
@@ -314,6 +312,9 @@ class MainWindow(QMainWindow):
                     if self.current_browser() == browser
                     else None
                 )
+                
+                #allows download of images
+                browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
     # Helper methods for file and data checks
     def is_tabs_data_file_found(self):
@@ -333,7 +334,6 @@ class MainWindow(QMainWindow):
 
     def open_default_tab(self):
         browser = QWebEngineView()
-        browser.setPage(CustomWebEnginePage())
         browser.setUrl(QUrl("https://duckduckgo.com/"))
 
         self.tabs.addTab(browser, "New Tab")
@@ -525,3 +525,19 @@ class MainWindow(QMainWindow):
         with open(theme_path, "r") as file:
             qss_content = file.read()
             self.setStyleSheet(qss_content)
+
+    def on_download_requested(self, download):
+        download.finished.connect(self.on_download_finished)
+        download.downloadProgress.connect(self.on_download_progress)
+
+        # Set your download path here
+        default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        download.setPath(default_downloads_path)  # Set the default Downloads directory
+        # Start the download
+        download.accept()
+
+    def on_download_progress(self, bytes_received, bytes_total):
+        print(f"Downloaded {bytes_received} of {bytes_total} bytes")
+
+    def on_download_finished(self):
+        print("Download finished")
