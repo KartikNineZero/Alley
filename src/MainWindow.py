@@ -315,6 +315,7 @@ class MainWindow(QMainWindow):
             
             browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
+    
     # Helper methods for file and data checks
     def is_tabs_data_file_found(self):
         try:
@@ -386,7 +387,8 @@ class MainWindow(QMainWindow):
             if ".com" in input_text:
                 url = input_text
             else:
-                url = f'https://duckduckgo.com/?hps=1&q={re.sub("","+",input_text)}&ia=web'
+                url = f'https://duckduckgo.com/?hps=1&q={"+".join(input_text.split())}&ia=web'
+
 
             if not url.startswith("http://") and not url.startswith("https://"):
                 url = "https://" + url
