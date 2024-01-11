@@ -50,7 +50,7 @@ QToolButton::menu-indicator { image: none; }
 /* Input field */
 QLineEdit {
     border: 1px inset #4CB9E7;
-    border-radius: 4px;
+    border-radius: 14px;
     padding: 5px;
     color: #ffffff;
     background: #000000;

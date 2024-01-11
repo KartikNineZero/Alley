@@ -36,13 +36,12 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         toolbar = QToolBar()
         self.addToolBar(toolbar)
-        icon_width = 20
-        icon_height = 20
+        icon_width = 24
+        icon_height = 24
         self.icon_width = 20
         self.icon_height = 20 
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
-
         home_btn = QAction(
             QIcon(QPixmap("Icons/home.png").scaled(icon_width, icon_height)), "⌂ HomePage", self
         )
@@ -64,7 +63,7 @@ class MainWindow(QMainWindow):
         )
         toolbar.addAction(forward_btn)
         reload_btn = QAction(
-            QIcon(QPixmap("Icons/r.png").scaled(icon_width, icon_height)), "⟳ Reload the Page", self
+            QIcon(QPixmap("Icons/r.svg").scaled(icon_width, icon_height)), "⟳ Reload the Page", self
         )
         reload_btn.triggered.connect(
             lambda: self.current_browser().reload() if self.current_browser() else None
