@@ -15,17 +15,12 @@ from PyQt5.QtWidgets import (
     QToolBar,
     QToolButton,
 )
-
-
 import json
 from urllib.parse import urlparse
-
 from src.CustomChatbot import CustomChatbot
-from src.CustomizeDialog import CustomizeDialog
 from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
 from src.BookmarksManager import BookmarksManager
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -160,15 +155,6 @@ class MainWindow(QMainWindow):
 
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
         self.history_action.triggered.connect(self.show_history)
-
-        # customize
-        self.customize_ui_action = QAction(QIcon("Icons/dm.png"), "Dark", self)
-        self.customize_ui_action.triggered.connect(self.open_customize_dialog)
-        self.dropdown_menu.addAction(self.customize_ui_action)
-
-        # Connect CustomizeDialog to main window for color changes
-        self.customize_dialog = CustomizeDialog(self)
-        self.customize_ui_action.triggered.connect(self.customize_dialog.show)
 
         # Chatbot instance
         self.chatbot = CustomChatbot()
