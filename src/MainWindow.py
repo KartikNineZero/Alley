@@ -21,6 +21,7 @@ from src.CustomChatbot import CustomChatbot
 from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
 from src.BookmarksManager import BookmarksManager
+from src.CustomizeDialog import CustomizeDialog
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -125,16 +126,14 @@ class MainWindow(QMainWindow):
         self.dropdown_menu.addAction(reset_zoom_action)
 
         self.dropdown_menu.addSeparator()
+        self.customize_ui_action = QAction(QIcon("Icons/dm.png"), "Appearance", self)
+        self.customize_ui_action.triggered.connect(self.open_customize_dialog)
+        self.dropdown_menu.addAction(self.customize_ui_action)
 
-        personalization_menu = self.dropdown_menu.addMenu("Themes")
-        # Add theme actions dynamically from the Themes folder
-        themes_folder = "themes"
-        themes = self.get_available_themes(themes_folder)
-        for theme in themes:
-            theme_action = QAction(theme, self)
-            theme_action.triggered.connect(lambda _, t=theme: self.apply_theme(t))
-            personalization_menu.addAction(theme_action)
-            
+        # Connect CustomizeDialog to main window for color changes
+        self.customize_dialog = CustomizeDialog(self)
+        self.customize_ui_action.triggered.connect(self.customize_dialog.show)
+
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
         bookmarks_icon_path = 'Icons/saved.png'
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
@@ -500,18 +499,6 @@ class MainWindow(QMainWindow):
                 .replace("http://", "chrome-devtools://devtools/remote/")
             )
             dev_tools_browser.setUrl(QUrl(dev_tools_url))
-
-    def get_available_themes(self, themes_folder):
-        themes = []
-        if os.path.exists(themes_folder):
-            themes = [f for f in os.listdir(themes_folder) if f.endswith(".qss")]
-        return themes
-
-    def apply_theme(self, theme):
-        theme_path = os.path.join("Themes", theme)
-        with open(theme_path, "r") as file:
-            qss_content = file.read()
-            self.setStyleSheet(qss_content)
 
     def on_download_requested(self, download):
         download.finished.connect(self.on_download_finished)
