@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         )
         toolbar.addAction(forward_btn)
         reload_btn = QAction(
-            QIcon(QPixmap("Icons/r.svg").scaled(icon_width, icon_height)), "⟳ Reload the Page", self
+            QIcon(QPixmap("Icons/r.png").scaled(2*icon_width,2* icon_height)), "⟳ Reload the Page", self
         )
         reload_btn.triggered.connect(
             lambda: self.current_browser().reload() if self.current_browser() else None
@@ -105,10 +105,10 @@ class MainWindow(QMainWindow):
         self.dropdown_menu.addSeparator()
 
         # Create actions for zoom in and zoom out
-        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.png').scaled(self.icon_width, self.icon_height)), 'Zoom In', self)
+        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.png').scaled(2 * self.icon_width, 2 * self.icon_height)), 'Zoom In', self)
         zoom_in_dropdown_action.triggered.connect(self.zoom_in)
 
-        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.png').scaled(self.icon_width, self.icon_height)), 'Zoom Out', self)
+        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.png').scaled(2*self.icon_width,2* self.icon_height)), 'Zoom Out', self)
         zoom_out_dropdown_action.triggered.connect(self.zoom_out)
 
         # Add a separator before adding zoom actions
