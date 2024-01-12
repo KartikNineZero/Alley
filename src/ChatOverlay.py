@@ -13,7 +13,7 @@ class ChatOverlay(QWidget):
 
         # Container for chat input
         input_container = QWidget()
-        self.setStyleSheet("background-color: #fff;")
+        self.setStyleSheet("background-color: #fff; border: 1px solid black;")
         input_layout = QVBoxLayout(input_container)
 
 
