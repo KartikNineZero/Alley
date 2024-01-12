@@ -20,12 +20,34 @@ QWidget#fullscreenOverlay {
     opacity: 0.7;
 }
 
-QTabWidget, QToolBar, QMenuBar, QStatusBar, QCheckBox {
+QTabWidget, QMenuBar, QStatusBar, QCheckBox {
     color: #000000;
 }
-
-QTabWidget, QToolBar {
+QToolBar {
     background-color: #4CB9E7;
+    padding: 2px;
+}
+
+QToolButton {
+    /* Default style for QToolButton */
+    background-color: #4CB9E7; /* Green */
+    color: white;
+    border: 2px solid #4CB9E7;
+    border-radius: 5px;
+    padding: 2px 8px;
+    height: 30px;
+    width: 30px;
+}
+
+QToolButton:hover {
+    background-color: #fff;
+    border-radius: 20px; 
+    padding: 2px 4px;
+}
+
+QToolBar::item:hover {
+    background: #000000; /* Background color on hover */
+    color: #FFFFFF; /* Text color on hover */
 }
 QMainWindow{
     background-color: #000000;
@@ -120,22 +142,25 @@ QToolBar::item:selected {
 /* Menu Item */
 QMenu {
     background-color: #FFFFFF;
+    border: solid 1px #000;
+    border-radius: 1px;
 }
 
 QMenu::item {
     color: #000000;
     background-color: #FFFFFF;
-    padding: 4px 10px;
+    padding: 8px 16px; /* Adjusted padding for menu items */
+    font-size: 16px; /* Adjusted font size for menu items */
 }
 
 QMenu::item:selected {
     color: #000000;
     border: 2px solid #3A3A3A;
-    padding: 2px;
+    padding: 6px 14px; /* Adjusted padding for selected menu items */
     background: #4CB9E7;
     border-radius: 5px;
+    font-size: 14px; /* Adjusted font size for selected menu items */
 }
-
 
 /* Tab Widget */
 QTabWidget {
@@ -159,6 +184,7 @@ QTabBar::tab {
 
 QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover {
     background-color: #454545; /* Slightly lighter background when selected or hovered */
+    padding: 1px; 
 }
 
 QTabBar::tab:!selected {
@@ -181,6 +207,7 @@ QCheckBox:hover {
     border-radius: 4px;
     border: 1px solid #576170;
     background-color: #000000;
+    padding: 1px; 
 }
 
 QCheckBox::indicator:checked {
