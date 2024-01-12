@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QRadioButton, QVBoxLayout,QLabel
-
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QRadioButton, QVBoxLayout, QLabel
 
 class CustomizeDialog(QDialog):
     def __init__(self, parent=None):
@@ -25,11 +24,21 @@ class CustomizeDialog(QDialog):
         self.blue_theme_radio = QRadioButton('Blue Theme')
         self.green_theme_radio = QRadioButton('Green Theme')
         self.red_theme_radio = QRadioButton('Red Theme')
+        self.orange_theme_radio = QRadioButton('Orange Theme')
+        self.purple_theme_radio = QRadioButton('Purple Theme')
+        self.teal_theme_radio = QRadioButton('Teal Theme')
+        self.brown_theme_radio = QRadioButton('Brown Theme')
+        self.gray_theme_radio = QRadioButton('Gray Theme')
 
         layout.addWidget(self.theme_label)
         layout.addWidget(self.blue_theme_radio)
         layout.addWidget(self.green_theme_radio)
         layout.addWidget(self.red_theme_radio)
+        layout.addWidget(self.orange_theme_radio)
+        layout.addWidget(self.purple_theme_radio)
+        layout.addWidget(self.teal_theme_radio)
+        layout.addWidget(self.brown_theme_radio)
+        layout.addWidget(self.gray_theme_radio)
 
         # Button Box
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -49,6 +58,11 @@ class CustomizeDialog(QDialog):
         self.blue_theme_radio.clicked.connect(lambda: self.change_theme("blue"))
         self.green_theme_radio.clicked.connect(lambda: self.change_theme("green"))
         self.red_theme_radio.clicked.connect(lambda: self.change_theme("red"))
+        self.orange_theme_radio.clicked.connect(lambda: self.change_theme("orange"))
+        self.purple_theme_radio.clicked.connect(lambda: self.change_theme("purple"))
+        self.teal_theme_radio.clicked.connect(lambda: self.change_theme("teal"))
+        self.brown_theme_radio.clicked.connect(lambda: self.change_theme("brown"))
+        self.gray_theme_radio.clicked.connect(lambda: self.change_theme("gray"))
 
     def change_color(self, mode):
         template = "background-color: {}; color: {};"
@@ -62,12 +76,19 @@ class CustomizeDialog(QDialog):
 
     def change_theme(self, theme):
         template = "background-color: {}; color: {};"
-        if theme == "blue":
-            style = template.format("#0000FF", "white")
-        elif theme == "green":
-            style = template.format("#008000", "white")
-        elif theme == "red":
-            style = template.format("#FF0000", "white")
+        color_mapping = {
+            "blue": "#0000FF",
+            "green": "#008000",
+            "red": "#FF0000",
+            "orange": "#FFA500",
+            "purple": "#800080",
+            "teal": "#008080",
+            "brown": "#A52A2A",
+            "gray": "#808080",
+        }
+
+        if theme in color_mapping:
+            style = template.format(color_mapping[theme], "white")
         else:
             style = ""
         self.parent().setStyleSheet(style)
