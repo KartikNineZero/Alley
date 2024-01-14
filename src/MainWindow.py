@@ -14,7 +14,10 @@ from PyQt5.QtWidgets import (
     QTabWidget,
     QToolBar,
     QToolButton,
+    
 )
+from PyQt5.QtWidgets import QFileDialog
+
 import json
 from urllib.parse import urlparse
 from src.CustomChatbot import CustomChatbot
@@ -190,6 +193,36 @@ class MainWindow(QMainWindow):
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
         self.load_tabs_data()  # Load saved tabs when the application starts
+    
+    
+    def on_download_requested(self, download):
+        download.finished.connect(self.on_download_finished)
+        download.downloadProgress.connect(self.on_download_progress)
+
+        # Get suggested file name and MIME type
+        suggested_file_name = download.suggestedFileName()
+        mime_type = download.mimeType()
+
+        # Use the default Downloads directory
+        default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        
+        # Open a dialog to ask the user where to save the file
+        download_path, _ = QFileDialog.getSaveFileName(
+            self, "Save File", os.path.join(default_downloads_path, suggested_file_name),
+            f"{mime_type} (*.{suggested_file_name.split('.')[-1]})"
+        )
+
+        if download_path:
+            download.setPath(download_path)
+            download.accept()
+        else:
+            download.cancel()
+
+    def on_download_progress(self, bytes_received, bytes_total):
+        print(f"Downloaded {bytes_received} of {bytes_total} bytes")
+
+    def on_download_finished(self):
+        print("Download finished")
 
     def reset_zoom(self):
         if self.current_browser():
@@ -500,18 +533,4 @@ class MainWindow(QMainWindow):
             )
             dev_tools_browser.setUrl(QUrl(dev_tools_url))
 
-    def on_download_requested(self, download):
-        download.finished.connect(self.on_download_finished)
-        download.downloadProgress.connect(self.on_download_progress)
-
-        # Set your download path here
-        default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-        download.setPath(default_downloads_path)  # Set the default Downloads directory
-        # Start the download
-        download.accept()
-
-    def on_download_progress(self, bytes_received, bytes_total):
-        print(f"Downloaded {bytes_received} of {bytes_total} bytes")
-
-    def on_download_finished(self):
-        print("Download finished")
+    
