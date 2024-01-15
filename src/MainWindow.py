@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
         # Call the method to create shortcuts
         self.shortcut_manager.create_shortcuts()
         
+        
+
         icon_width = 20
         icon_height = 20
         self.icon_width = 10
@@ -385,7 +387,7 @@ class MainWindow(QMainWindow):
                 if self.current_browser() == browser
                 else None
             )
-
+    
     def update_tab_title(self, browser):
         # Get the domain name from the URL without "www."
         parsed_url = urlparse(browser.url().toString())
@@ -394,7 +396,23 @@ class MainWindow(QMainWindow):
             if parsed_url.hostname
             else "Unknown"
         )
-        self.tabs.setTabText(self.tabs.indexOf(browser), domain)
+
+        # Get the webpage title and limit it to 15 characters
+        title = browser.page().title()[:15]
+
+        # Fetch the website favicon
+        icon = browser.icon()
+        favicon = icon.pixmap(16, 16) if not icon.isNull() else None
+
+        # Set the tab text with the favicon, title, and show the full title on hover
+        tab_text = f"{'' if favicon is None else '    '}{title} "  # Adjust spacing as needed
+        self.tabs.setTabText(self.tabs.indexOf(browser), tab_text)
+        self.tabs.setTabToolTip(self.tabs.indexOf(browser), browser.page().title())
+
+        # Set the favicon in the tab
+        if favicon is not None:
+            self.tabs.setTabIcon(self.tabs.indexOf(browser), QIcon(favicon))
+
 
     def close_tab(self, index):
         browser_widget = self.tabs.widget(index)

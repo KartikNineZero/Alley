@@ -14,18 +14,19 @@ QLineEdit {
     color: #ecf0f1;
     border-radius: 6px;
     padding: 5px;
-}
+    
+}   
 
 
 QMenu {
     background-color: qlineargradient(x1:1, y1:0, x2:1, y2:3, stop:0 #1e1e1e, stop:1 purple);
     border: 1px solid #2e2e2e;
     width: 280px; 
-    height: 443px; 
+    border-radius:2px;
 }
 
 QMenu::item {
-    padding: 12px 24px;
+    padding: 12px 12px;
     color: #ffffff;
 }
 
@@ -33,11 +34,7 @@ QMenu::item:selected {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e1e1e, stop:1 black);
     border-radius:4px;
     border-style: solid;
-	border-top-color: transparent;
-	border-right-color: transparent;
-	border-left-color: #ffffff;
-	border-bottom-color: transparent;
-	border-left-width: 2px;
+	
 }
 
 QMenu::icon {
@@ -74,6 +71,7 @@ QToolButton::menu-indicator {
 }
 
 
+QTabBar::tab { width: 150px; }
 
 QTabBar {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e1e1e, stop:1 grey);
