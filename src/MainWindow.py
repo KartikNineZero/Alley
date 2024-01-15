@@ -27,6 +27,7 @@ from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
 from src.BookmarksManager import BookmarksManager
 from src.CustomizeDialog import CustomizeDialog
+from src.ShortcutManager import ShortcutManager
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -41,6 +42,11 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         toolbar = QToolBar()
         self.addToolBar(toolbar)
+
+        # Create an instance of ShortcutManager
+        self.shortcut_manager = ShortcutManager(self)
+        # Call the method to create shortcuts
+        self.shortcut_manager.create_shortcuts()
         
         icon_width = 20
         icon_height = 20
@@ -50,7 +56,9 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_tab)
         home_btn = QAction(
             QIcon(QPixmap("Icons/h.svg").scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
+            
         )
+        #home_btn.setShortcut('Alt+H')
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
         
@@ -261,6 +269,10 @@ class MainWindow(QMainWindow):
         current_browser = self.tabs.widget(index)
         if current_browser:
             self.url_bar.setText(current_browser.url().toString())
+
+    def focus_address_bar(self):
+        self.url_bar.setFocus()
+        self.url_bar.selectAll()
 
     def open_settings(self):
         # Replace this with your actual settings implementation
