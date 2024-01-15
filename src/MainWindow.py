@@ -14,6 +14,9 @@ from PyQt5.QtWidgets import (
     QTabWidget,
     QToolBar,
     QToolButton,
+    QApplication,
+    QVBoxLayout,
+    QWidget,
 )
 import json
 from urllib.parse import urlparse
@@ -29,7 +32,6 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Alley Browser")
         self.setWindowIcon(QIcon("Icons/Logo.png"))
-
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_tab)
@@ -37,53 +39,58 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         toolbar = QToolBar()
         self.addToolBar(toolbar)
-        icon_width = 24
-        icon_height = 24
-        self.icon_width = 20
-        self.icon_height = 20 
+        
+        icon_width = 20
+        icon_height = 20
+        self.icon_width = 10
+        self.icon_height = 10 
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
         home_btn = QAction(
-            QIcon(QPixmap("Icons/home.png").scaled(icon_width, icon_height)), "⌂ HomePage", self
+            QIcon(QPixmap("Icons/h.svg").scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
         )
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
         
         back_btn = QAction(
-            QIcon(QPixmap("Icons/la.png").scaled(icon_width, icon_height)), "⮜ Navigate to Previous Page", self
+            QIcon(QPixmap("Icons/l.svg").scaled(2*icon_width,2* icon_height)), "⮜ Navigate to Previous Page", self
         )
         back_btn.triggered.connect(
             lambda: self.current_browser().back() if self.current_browser() else None
         )
         toolbar.addAction(back_btn)
         forward_btn = QAction(
-            QIcon(QPixmap("Icons/ra.png").scaled(icon_width, icon_height)), "⮞ Navigate to Next Page", self
+            QIcon(QPixmap("Icons/rn.png").scaled(2*icon_width,2* icon_height)), "⮞ Navigate to Next Page", self
         )
         forward_btn.triggered.connect(
             lambda: self.current_browser().forward() if self.current_browser() else None
         )
         toolbar.addAction(forward_btn)
         reload_btn = QAction(
-            QIcon(QPixmap("Icons/r.png").scaled(2*icon_width,2* icon_height)), "⟳ Reload the Page", self
+            QIcon(QPixmap("Icons/rd.svg").scaled(3*icon_width,3* icon_height)), "⟳ Reload the Page", self
         )
         reload_btn.triggered.connect(
             lambda: self.current_browser().reload() if self.current_browser() else None
         )
         toolbar.addAction(reload_btn)
-
         self.url_bar = QLineEdit()
-        self.url_bar.setFixedHeight(30)
+        self.url_bar.setFixedHeight(34)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
+        self.url_bar.setFixedWidth(1625)
+        self.url_bar.setStyleSheet("margin-left: 150px; margin-right: 150px;")
         toolbar.addWidget(self.url_bar)
+        toolbar_layout = QVBoxLayout(toolbar)
+        toolbar_layout.addWidget(self.url_bar)
+        toolbar.setLayout(toolbar_layout)
         
         add_tab_btn = QAction(
-            QIcon(QPixmap("Icons/add.png").scaled(icon_width, icon_height)), "+ New Tab", self
+            QIcon(QPixmap("Icons/a.svg").scaled(3*icon_width,3* icon_height)), "+ New Tab", self
         )
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
         
         self.bookmarks_action = QAction(
-            QIcon(QPixmap("Icons/bm.png").scaled(icon_width,icon_height)),
+            QIcon(QPixmap("Icons/sr.svg").scaled(4*icon_width,4*icon_height)),
             "Bookmarks",
             self,
         )
@@ -100,15 +107,15 @@ class MainWindow(QMainWindow):
         dropdown_btn = QToolButton(self)
         dropdown_btn.setMenu(self.dropdown_menu)
         dropdown_btn.setPopupMode(QToolButton.InstantPopup)
-        dropdown_btn.setIcon(QIcon("Icons/menu.png"))
+        dropdown_btn.setIcon(QIcon("Icons/m.svg"))
         # Add a separator to make the menu visually more appealing
         self.dropdown_menu.addSeparator()
 
         # Create actions for zoom in and zoom out
-        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.png').scaled(2 * self.icon_width, 2 * self.icon_height)), 'Zoom In', self)
+        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.svg').scaled(3* self.icon_width, 3 * self.icon_height)), 'Zoom In', self)
         zoom_in_dropdown_action.triggered.connect(self.zoom_in)
 
-        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.png').scaled(2*self.icon_width,2* self.icon_height)), 'Zoom Out', self)
+        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.svg').scaled(3*self.icon_width,3* self.icon_height)), 'Zoom Out', self)
         zoom_out_dropdown_action.triggered.connect(self.zoom_out)
 
         # Add a separator before adding zoom actions
@@ -119,14 +126,14 @@ class MainWindow(QMainWindow):
         self.dropdown_menu.addAction(zoom_in_dropdown_action)
 
         # Create action for reset zoom
-        reset_zoom_action = QAction(QIcon('Icons/reset_zoom_icon.png'), 'Reset Zoom', self)
+        reset_zoom_action = QAction(QIcon('Icons/zr.svg'), 'Reset Zoom', self)
         reset_zoom_action.triggered.connect(self.reset_zoom)
 
         # Add reset zoom action to the dropdown menu
         self.dropdown_menu.addAction(reset_zoom_action)
 
         self.dropdown_menu.addSeparator()
-        self.customize_ui_action = QAction(QIcon("Icons/dm.png"), "Appearance", self)
+        self.customize_ui_action = QAction(QIcon("Icons/dm.svg"), "Appearance", self)
         self.customize_ui_action.triggered.connect(self.open_customize_dialog)
         self.dropdown_menu.addAction(self.customize_ui_action)
 
@@ -138,16 +145,16 @@ class MainWindow(QMainWindow):
         bookmarks_icon_path = 'Icons/saved.png'
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
 
-        inspect_element_action_dropdown = QAction(QIcon('Icons/dev.png'), 'Dev tool', self)
+        inspect_element_action_dropdown = QAction(QIcon('Icons/dt.svg'), 'Dev tool', self)
         inspect_element_action_dropdown.triggered.connect(self.inspect_element)
         self.dropdown_menu.addAction(inspect_element_action_dropdown)
         
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
-        bookmarks_icon_path = "Icons/bm.png"
+        bookmarks_icon_path = "Icons/bm.svg"
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
 
         # Replace 'Icons/history_icon.ico' with the actual path to your history icon
-        history_icon_path = "Icons/h.png"
+        history_icon_path = "Icons/hr.svg"
         self.history_action.setIcon(QIcon(history_icon_path))
         toolbar.addWidget(dropdown_btn)
 
@@ -158,14 +165,14 @@ class MainWindow(QMainWindow):
         self.chatbot = CustomChatbot()
 
         # Action for opening chatbot overlay
-        chatbot_icon_path = "Icons/cb.png"
+        chatbot_icon_path = "Icons/cb.svg"
         chatbot_action = QAction(QIcon(chatbot_icon_path), "Chatbot", self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
         self.dropdown_menu.addAction(chatbot_action)
 
         # Downloads action in the dropdown
         self.downloaded_files = []  # List to keep track of downloaded files
-        downloads_icon_path = "Icons/d.png"
+        downloads_icon_path = "Icons/d.svg"
         self.downloads_action = QAction(QIcon(downloads_icon_path), "Downloads", self)
         self.downloads_action.triggered.connect(self.show_downloads)
         self.dropdown_menu.addAction(self.downloads_action)

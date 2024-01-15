@@ -75,9 +75,9 @@ class CustomizeDialog(QDialog):
         self.parent().setStyleSheet(style)
 
     def change_theme(self, theme):
-        template = "background-color: {}; color: {};"
+        template = "background-color: {}; color: {}; border-color: #000;"
         color_mapping = {
-            "blue": "#0000FF",
+            "blue": "#3202F8",
             "green": "#008000",
             "red": "#FF0000",
             "orange": "#FFA500",
