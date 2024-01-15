@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
         self.url_bar.setFixedHeight(34)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
         self.url_bar.setFixedWidth(1625)
-        self.url_bar.setStyleSheet("margin-left: 150px; margin-right: 150px;")
+        self.url_bar.setStyleSheet("margin-left: 150px; margin-right: 150px; font-size: 15px")
         toolbar.addWidget(self.url_bar)
         toolbar_layout = QVBoxLayout(toolbar)
         toolbar_layout.addWidget(self.url_bar)
