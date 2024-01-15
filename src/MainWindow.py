@@ -14,6 +14,9 @@ from PyQt5.QtWidgets import (
     QTabWidget,
     QToolBar,
     QToolButton,
+    QApplication,
+    QVBoxLayout,
+    QWidget,
 )
 from PyQt5.QtWidgets import QFileDialog
 
