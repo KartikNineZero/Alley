@@ -2,4 +2,11 @@ src/__pycache__/*
 Classes/__pycache__/*
 src/trial.py
 tabs_data.json
+<<<<<<< HEAD
 tabs_data.json
+=======
+build/*
+dist/*
+icon.ico
+alleybrowser.spec
+>>>>>>> a839f92 (added some stuff to girignore)
