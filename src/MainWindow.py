@@ -338,7 +338,7 @@ class MainWindow(QMainWindow):
             
             browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
-    
+    #commitfix
     # Helper methods for file and data checks
     def is_tabs_data_file_found(self):
         try:
