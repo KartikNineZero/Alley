@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from PyQt5.QtWidgets import QFileDialog
-
+import sys
 import json
 from urllib.parse import urlparse
 from src.CustomChatbot import CustomChatbot
@@ -29,12 +29,22 @@ from src.BookmarksManager import BookmarksManager
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle("Alley Browser")
-        self.setWindowIcon(QIcon("Icons/Logo.png"))
+        self.setWindowIcon(QIcon(resource_path("Icons\\Logo.png")))
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_tab)
@@ -56,8 +66,7 @@ class MainWindow(QMainWindow):
         self.icon_height = 10 
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
-        home_btn = QAction(
-            QIcon(QPixmap("Icons/h.svg").scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
+        home_btn = QAction(QIcon(QPixmap(resource_path("Icons\\h.svg")).scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
             
         )
         #home_btn.setShortcut('Alt+H')
@@ -65,21 +74,21 @@ class MainWindow(QMainWindow):
         toolbar.addAction(home_btn)
         
         back_btn = QAction(
-            QIcon(QPixmap("Icons/l.svg").scaled(2*icon_width,2* icon_height)), "⮜ Navigate to Previous Page", self
+            QIcon(QPixmap(resource_path("Icons\\l.svg")).scaled(2*icon_width,2* icon_height)), "⮜ Navigate to Previous Page", self
         )
         back_btn.triggered.connect(
             lambda: self.current_browser().back() if self.current_browser() else None
         )
         toolbar.addAction(back_btn)
         forward_btn = QAction(
-            QIcon(QPixmap("Icons/rn.png").scaled(2*icon_width,2* icon_height)), "⮞ Navigate to Next Page", self
+            QIcon(QPixmap(resource_path("Icons\\rn.png")).scaled(2*icon_width,2* icon_height)), "⮞ Navigate to Next Page", self
         )
         forward_btn.triggered.connect(
             lambda: self.current_browser().forward() if self.current_browser() else None
         )
         toolbar.addAction(forward_btn)
         reload_btn = QAction(
-            QIcon(QPixmap("Icons/rd.svg").scaled(3*icon_width,3* icon_height)), "⟳ Reload the Page", self
+            QIcon(QPixmap(resource_path("Icons\\rd.svg")).scaled(3*icon_width,3* icon_height)), "⟳ Reload the Page", self
         )
         reload_btn.triggered.connect(
             lambda: self.current_browser().reload() if self.current_browser() else None
@@ -96,13 +105,13 @@ class MainWindow(QMainWindow):
         toolbar.setLayout(toolbar_layout)
         
         add_tab_btn = QAction(
-            QIcon(QPixmap("Icons/a.svg").scaled(3*icon_width,3* icon_height)), "+ New Tab", self
+            QIcon(QPixmap(resource_path("Icons\\a.svg")).scaled(3*icon_width,3* icon_height)), "+ New Tab", self
         )
         add_tab_btn.triggered.connect(self.add_tab)
         toolbar.addAction(add_tab_btn)
         
         self.bookmarks_action = QAction(
-            QIcon(QPixmap("Icons/sr.svg").scaled(4*icon_width,4*icon_height)),
+            QIcon(QPixmap(resource_path("Icons\\sr.svg")).scaled(4*icon_width,4*icon_height)),
             "Bookmarks",
             self,
         )
@@ -119,15 +128,15 @@ class MainWindow(QMainWindow):
         dropdown_btn = QToolButton(self)
         dropdown_btn.setMenu(self.dropdown_menu)
         dropdown_btn.setPopupMode(QToolButton.InstantPopup)
-        dropdown_btn.setIcon(QIcon("Icons/m.svg"))
+        dropdown_btn.setIcon(QIcon(resource_path("Icons\\m.svg")))
         # Add a separator to make the menu visually more appealing
         self.dropdown_menu.addSeparator()
 
         # Create actions for zoom in and zoom out
-        zoom_in_dropdown_action = QAction(QIcon(QPixmap('Icons/zi.svg').scaled(3* self.icon_width, 3 * self.icon_height)), 'Zoom In', self)
+        zoom_in_dropdown_action = QAction(QIcon(QPixmap(resource_path('Icons\\zi.svg')).scaled(3* self.icon_width, 3 * self.icon_height)), 'Zoom In', self)
         zoom_in_dropdown_action.triggered.connect(self.zoom_in)
 
-        zoom_out_dropdown_action = QAction(QIcon(QPixmap('Icons/zo.svg').scaled(3*self.icon_width,3* self.icon_height)), 'Zoom Out', self)
+        zoom_out_dropdown_action = QAction(QIcon(QPixmap(resource_path('Icons\\zo.svg')).scaled(3*self.icon_width,3* self.icon_height)), 'Zoom Out', self)
         zoom_out_dropdown_action.triggered.connect(self.zoom_out)
 
         # Add a separator before adding zoom actions
@@ -138,14 +147,14 @@ class MainWindow(QMainWindow):
         self.dropdown_menu.addAction(zoom_in_dropdown_action)
 
         # Create action for reset zoom
-        reset_zoom_action = QAction(QIcon('Icons/zr.svg'), 'Reset Zoom', self)
+        reset_zoom_action = QAction(QIcon(resource_path('Icons\\zr.svg')), 'Reset Zoom', self)
         reset_zoom_action.triggered.connect(self.reset_zoom)
 
         # Add reset zoom action to the dropdown menu
         self.dropdown_menu.addAction(reset_zoom_action)
 
         self.dropdown_menu.addSeparator()
-        self.customize_ui_action = QAction(QIcon("Icons/dm.svg"), "Appearance", self)
+        self.customize_ui_action = QAction(QIcon(resource_path("Icons\\dm.svg")), "Appearance", self)
         self.customize_ui_action.triggered.connect(self.open_customize_dialog)
         self.dropdown_menu.addAction(self.customize_ui_action)
 
@@ -154,19 +163,19 @@ class MainWindow(QMainWindow):
         self.customize_ui_action.triggered.connect(self.customize_dialog.show)
 
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
-        bookmarks_icon_path = 'Icons/saved.png'
+        bookmarks_icon_path = resource_path('Icons\\saved.png')
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
 
-        inspect_element_action_dropdown = QAction(QIcon('Icons/dt.svg'), 'Dev tool', self)
+        inspect_element_action_dropdown = QAction(QIcon(resource_path('Icons\\dt.svg')), 'Dev tool', self)
         inspect_element_action_dropdown.triggered.connect(self.inspect_element)
         self.dropdown_menu.addAction(inspect_element_action_dropdown)
         
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
-        bookmarks_icon_path = "Icons/bm.svg"
+        bookmarks_icon_path = resource_path("Icons\\bm.svg")
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
 
         # Replace 'Icons/history_icon.ico' with the actual path to your history icon
-        history_icon_path = "Icons/hr.svg"
+        history_icon_path = resource_path("Icons\\hr.svg")
         self.history_action.setIcon(QIcon(history_icon_path))
         toolbar.addWidget(dropdown_btn)
 
@@ -177,14 +186,14 @@ class MainWindow(QMainWindow):
         self.chatbot = CustomChatbot()
 
         # Action for opening chatbot overlay
-        chatbot_icon_path = "Icons/cb.svg"
+        chatbot_icon_path = resource_path("Icons\\cb.svg")
         chatbot_action = QAction(QIcon(chatbot_icon_path), "Chatbot", self)
         chatbot_action.triggered.connect(self.open_chatbot_overlay)
         self.dropdown_menu.addAction(chatbot_action)
 
         # Downloads action in the dropdown
         self.downloaded_files = []  # List to keep track of downloaded files
-        downloads_icon_path = "Icons/d.svg"
+        downloads_icon_path = resource_path("Icons\\d.svg")
         self.downloads_action = QAction(QIcon(downloads_icon_path), "Downloads", self)
         self.downloads_action.triggered.connect(self.show_downloads)
         self.dropdown_menu.addAction(self.downloads_action)
@@ -193,7 +202,7 @@ class MainWindow(QMainWindow):
         self.media_downloader = SaveFromNet()
 
         # Media Downloader action in the dropdown
-        media_downloader_icon_path = "Icons/md.png"
+        media_downloader_icon_path = resource_path("Icons\\md.png")
         media_downloader_action = QAction(
             QIcon(media_downloader_icon_path), "Media Downloader", self
         )
@@ -288,19 +297,24 @@ class MainWindow(QMainWindow):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
 
     def load_tabs_data(self):
-        try:
-            with open("tabs_data.json", "r") as file:
-                tabs_data = json.load(file)
-                if not tabs_data:  # Check if the file is empty
-                    print("No data found in tabs_data.json")
-                    return
-                for tab_data in tabs_data:
-                    if tab_data["url"] != "https://duckduckgo.com/":
-                        self.add_tab(url=tab_data["url"])
-        except FileNotFoundError:
-            print("File tabs_data.json not found.")
-        except json.JSONDecodeError:
-            print("Error decoding JSON data in tabs_data.json")
+        if not os.path.exists(resource_path("tabs_data.json")):  # Check if the file exists
+            with open(resource_path("tabs_data.json"), "w") as file:  # Create the file
+                json.dump([], file)  # Write an empty list to the file
+                print("tabs_data.json file created.")
+        else:
+            try:
+                with open(resource_path("tabs_data.json"), "r") as file:
+                    tabs_data = json.load(file)
+                    if not tabs_data:  # Check if the file is empty
+                        print("No data found in tabs_data.json")
+                        return
+                    for tab_data in tabs_data:
+                        if tab_data["url"] != "https://duckduckgo.com/":
+                            self.add_tab(url=tab_data["url"])
+            except FileNotFoundError:
+                print("File tabs_data.json not found.")
+            except json.JSONDecodeError:
+                print("Error decoding JSON data in tabs_data.json")
 
     def save_tabs_data(self):
         tabs_data = []
@@ -311,7 +325,7 @@ class MainWindow(QMainWindow):
             if url != "https://duckduckgo.com/":
                 tabs_data.append({"url": url})
 
-        with open("tabs_data.json", "w") as file:
+        with open(resource_path("tabs_data.json"), "w") as file:
             json.dump(tabs_data, file)
 
     def closeEvent(self, event):
@@ -356,14 +370,14 @@ class MainWindow(QMainWindow):
     # Helper methods for file and data checks
     def is_tabs_data_file_found(self):
         try:
-            with open("tabs_data.json", "r") as file:
+            with open(resource_path("tabs_data.json"), "r") as file:
                 return True
         except FileNotFoundError:
             return False
 
     def is_tabs_data_empty(self):
         try:
-            with open("tabs_data.json", "r") as file:
+            with open(resource_path("tabs_data.json"), "r") as file:
                 tabs_data = json.load(file)
                 return not bool(tabs_data)
         except json.JSONDecodeError:
