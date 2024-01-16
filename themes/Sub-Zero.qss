@@ -112,3 +112,7 @@ QPushButton:pressed {
 	border-bottom-color: transparent;
 	border-left-width: 2px;
 }
+
+QRadioButton{
+    background: transparent ;
+}
