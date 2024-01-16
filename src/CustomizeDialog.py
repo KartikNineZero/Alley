@@ -92,3 +92,4 @@ class CustomizeDialog(QDialog):
         else:
             style = ""
         self.parent().setStyleSheet(style)
+

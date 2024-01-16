@@ -124,6 +124,36 @@ class MainWindow(QMainWindow):
         self.customize_ui_action = QAction("Customize", self)
         self.dropdown_menu.addAction(self.bookmarks_action)
         self.dropdown_menu.addAction(self.history_action)
+        menu_stylesheet = """
+QMenu {
+    background-color: qlineargradient(x2:1, y2:1, x2:1, y2:1, stop:0 #1e1e1e, stop:1 purple);
+    border: 1px solid #2e2e2e;
+    width: 280px; 
+    height: 443px; 
+}
+
+QMenu::item {
+    padding: 12px 12px;
+    color: #ffffff;
+}
+
+QMenu::item:selected {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e1e1e, stop:1 black);
+    border-radius:4px;
+    border-style: solid;
+	border-top-color: transparent;
+	border-right-color: transparent;
+	border-left-color: #ffffff;
+	border-bottom-color: transparent;
+	border-left-width: 2px;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #2e2e2e;
+}
+        """
+        self.dropdown_menu.setStyleSheet(menu_stylesheet)
 
         dropdown_btn = QToolButton(self)
         dropdown_btn.setMenu(self.dropdown_menu)
