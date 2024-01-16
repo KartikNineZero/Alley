@@ -559,7 +559,7 @@ QMenu::separator {
                     lambda _, url=entry.url(): self.current_browser().setUrl(url)
                 )
             history_menu.exec_(QCursor.pos())
-
+            
     def open_chatbot_overlay(self):
         # Toggle the visibility of the chat overlay
         self.chat_overlay.setVisible(not self.chat_overlay.isVisible())

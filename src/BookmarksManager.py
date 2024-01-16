@@ -26,13 +26,15 @@ class BookmarksManager(QWidget):
 
         self.input_url = QLineEdit()
         self.input_url.setPlaceholderText('URL')
-        self.input_url.setStyleSheet("QLineEdit { padding: 5px; }")
+        self.input_url.setStyleSheet("QLineEdit { padding: 60px; margin-left: 15px; margin-right: 15px; font-size: 15px }")
+        self.input_url.setAlignment(Qt.AlignHCenter) 
         self.input_url.setMaximumWidth(280)
         input_layout.addWidget(self.input_url)
 
         self.input_title = QLineEdit()
         self.input_title.setPlaceholderText('Title')
-        self.input_title.setStyleSheet("QLineEdit { padding: 5px; }")
+        self.input_title.setStyleSheet("QLineEdit { padding: 6px; margin-left: 15px; margin-right: 15px; font-size: 15px }")
+        self.input_title.setAlignment(Qt.AlignHCenter) 
         self.input_title.setMaximumWidth(280)
         input_layout.addWidget(self.input_title)
 
@@ -40,11 +42,13 @@ class BookmarksManager(QWidget):
         add_button.clicked.connect(self.add_bookmark)
         add_button.setMaximumWidth(280)
         input_layout.addWidget(add_button)
+        add_button.setStyleSheet("QPushButton { padding: 10px; margin-left: 15px; margin-right: 15px; font-size: 15px }")
 
         close_button = QPushButton('Close')
         close_button.clicked.connect(self.close_overlay)
         close_button.setMaximumWidth(280)
         input_layout.addWidget(close_button)
+        close_button.setStyleSheet("QPushButton { padding: 10px; margin-left: 15px; margin-right: 15px; font-size: 15px }")
 
         layout.addLayout(input_layout)
 
