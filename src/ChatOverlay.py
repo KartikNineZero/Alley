@@ -91,8 +91,17 @@ class ChatOverlay(QWidget):
         user_input = self.user_input.text()
         response = self.chatbot.get_response(user_input)
 
-        # Append user message and chatbot reply to chat_display
-        self.chat_display.append(f"{user_style}{user_input}")
-        self.chat_display.append(f"{chatbot_style}{response}")
+        # Create custom message labels for user input and chatbot response
+        user_message_html = f'<div style="background-color: #007bff; color: white; border-radius: 5px; padding: 8px; text-align: right;">{user_input}</div>'
+        
+        chatbot_message_html = f'<div style="background-color: #28a745; color: white; border-radius: 5px; padding: 8px; text-align: left;">{response}</div>'
 
+        # Add custom message labels to the chat display with line breaks
+        current_html = self.chat_display.toHtml()
+        updated_html = f"{current_html}{user_message_html}<br>{chatbot_message_html}"
+
+        self.chat_display.setHtml(updated_html)
+
+        # Clear the user input for better user experience
         self.user_input.clear()
+
