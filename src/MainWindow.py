@@ -228,7 +228,7 @@ QMenu::separator {
         downloads_icon_path = resource_path("Icons\\d.svg")
         download_action = QAction(QIcon(QIcon(downloads_icon_path)), "Downloads", self)
         download_action.triggered.connect(self.show_download_manager)
-        toolbar.addAction(download_action)
+        self.dropdown_menu.addAction(download_action)
 
         # Media Downloader instance
         self.media_downloader = SaveFromNet()
