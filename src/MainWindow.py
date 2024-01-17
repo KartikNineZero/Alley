@@ -28,6 +28,7 @@ from src.ChatOverlay import ChatOverlay
 from src.BookmarksManager import BookmarksManager
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
+from src.DownloadManager import DownloadManager, DownloadDialog, DownloadModel
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -50,6 +51,8 @@ class MainWindow(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.setCentralWidget(self.tabs)
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
+        self.download_manager = DownloadManager(self)
+        self.download_manager.hide()
         toolbar = QToolBar()
         self.addToolBar(toolbar)
 
@@ -224,9 +227,9 @@ QMenu::separator {
         # Downloads action in the dropdown
         self.downloaded_files = []  # List to keep track of downloaded files
         downloads_icon_path = resource_path("Icons\\d.svg")
-        self.downloads_action = QAction(QIcon(downloads_icon_path), "Downloads", self)
-        self.downloads_action.triggered.connect(self.show_downloads)
-        self.dropdown_menu.addAction(self.downloads_action)
+        download_action = QAction(QIcon(QIcon(downloads_icon_path)), "Downloads", self)
+        download_action.triggered.connect(self.show_download_manager)
+        toolbar.addAction(download_action)
 
         # Media Downloader instance
         self.media_downloader = SaveFromNet()
@@ -248,8 +251,8 @@ QMenu::separator {
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
         self.load_tabs_data()  # Load saved tabs when the application starts
-    
-    
+
+
     def on_download_requested(self, download):
         download.finished.connect(self.on_download_finished)
         download.downloadProgress.connect(self.on_download_progress)
@@ -260,7 +263,7 @@ QMenu::separator {
 
         # Use the default Downloads directory
         default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-        
+
         # Open a dialog to ask the user where to save the file
         download_path, _ = QFileDialog.getSaveFileName(
             self, "Save File", os.path.join(default_downloads_path, suggested_file_name),
@@ -270,6 +273,9 @@ QMenu::separator {
         if download_path:
             download.setPath(download_path)
             download.accept()
+            
+            # Add the download to the DownloadManager
+            self.download_manager.add_download(download.url().toString(), suggested_file_name)
         else:
             download.cancel()
 
@@ -278,6 +284,13 @@ QMenu::separator {
 
     def on_download_finished(self):
         print("Download finished")
+         
+    def show_download_manager(self):
+    # Toggle the visibility of the DownloadManager
+        self.download_manager.setVisible(not self.download_manager.isVisible())
+
+    def show_download_manager(self):
+        self.download_manager.show()
 
     def reset_zoom(self):
         if self.current_browser():
