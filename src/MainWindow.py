@@ -2,7 +2,7 @@ import re
 import os
 from PyQt5.QtCore import QUrl, Qt,QSize
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
-from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView,QWebEnginePage
 from PyQt5.QtWidgets import (
     QAction,
     QDialog,
@@ -17,6 +17,8 @@ from PyQt5.QtWidgets import (
     QApplication,
     QVBoxLayout,
     QWidget,
+    QPushButton
+    
 )
 from PyQt5.QtWidgets import QFileDialog
 import sys
@@ -25,6 +27,10 @@ from urllib.parse import urlparse
 from src.CustomChatbot import CustomChatbot
 from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
+<<<<<<< Updated upstream
+=======
+from src.BookmarksManager import BookmarkDialog
+>>>>>>> Stashed changes
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
 from src.DownloadManager import DownloadManager, DownloadDialog, DownloadModel
@@ -113,10 +119,11 @@ class MainWindow(QMainWindow):
         toolbar.addAction(add_tab_btn)
         
         self.bookmarks_action = QAction(
-            QIcon(QPixmap(resource_path("Icons\\sr.svg")).scaled(4*icon_width,4*icon_height)),
+            QIcon(QPixmap(resource_path("Icons\\sr.svg")).scaled(4 * icon_width, 4 * icon_height)),
             "Bookmarks",
             self,
         )
+        self.bookmarks_action.triggered.connect(self.show_bookmarks)
         
         toolbar.addAction(self.bookmarks_action)
 
@@ -197,6 +204,7 @@ QMenu::separator {
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
         bookmarks_icon_path = resource_path('Icons\\saved.png')
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
+        
 
         inspect_element_action_dropdown = QAction(QIcon(resource_path('Icons\\dt.svg')), 'Dev tool', self)
         inspect_element_action_dropdown.triggered.connect(self.inspect_element)
@@ -515,19 +523,14 @@ QMenu::separator {
             self.update_url(current_browser.url())
 
     def show_bookmarks(self):
-        if not hasattr(self, 'bookmarks_manager'):
-            self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
-            self.layout().addWidget(self.bookmarks_manager)
-        self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
+        if not hasattr(self, 'bookmark_dialog') or not self.bookmark_dialog.isVisible():
+            self.bookmark_dialog = BookmarkDialog(browser=self.current_browser())
+            self.bookmark_dialog.set_main_window(self)
+            self.bookmark_dialog.show()
+        else:
+            self.bookmark_dialog.activateWindow()
 
-        bookmarks = ["Bookmark 1", "Bookmark 2", "Bookmark 3"]  # Replace with your actual bookmarks data
-        self.bookmark_dialog = BookmarkDialog(self)
-        self.bookmark_dialog.populate_bookmarks(bookmarks)
 
-        result = self.bookmark_dialog.exec_()
-        if result == QDialog.Accepted:
-            # Handle bookmark selection if needed
-            pass
 
     def show_bookmark_dialog(self):
         dialog = BookmarkDialog(self)
@@ -553,11 +556,12 @@ QMenu::separator {
             action.triggered.connect(callback)
         return action
 
-    def show_bookmarks(self):
-        if not hasattr(self, 'bookmarks_manager'):
-            self.bookmarks_manager = BookmarksManager(browser=self.current_browser())
-            self.layout().addWidget(self.bookmarks_manager)  # Fixed the typo here
-        self.bookmarks_manager.setVisible(not self.bookmarks_manager.isVisible())
+    def show_bookmarks_dialog(self):
+            # Create an instance of BookmarkDialog and show it
+            bookmarks_dialog = BookmarkDialog(parent=self)
+            bookmarks_dialog.set_main_window(self)  # Pass the main window reference if needed
+            bookmarks_dialog.exec_()
+
     def open_customize_dialog(self):
         customize_dialog = CustomizeDialog(self)
         customize_dialog.exec_()
@@ -612,6 +616,12 @@ QMenu::separator {
             # Create a QDockWidget to contain the DevTools browser
             dock_widget = QDockWidget("DevTools", self)
             dock_widget.setWidget(dev_tools_browser)
+
+            # Add a close button
+            close_button = QPushButton("Close DevTools", dock_widget)
+            close_button.clicked.connect(dock_widget.close)
+            dock_widget.setTitleBarWidget(close_button)
+
             dock_widget.setFeatures(
                 QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable
             )
