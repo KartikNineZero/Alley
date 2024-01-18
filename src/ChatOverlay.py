@@ -13,7 +13,7 @@ class ChatOverlay(QWidget):
 
         # Container for chat input
         input_container = QWidget()
-        self.setStyleSheet("background-color: #fff; border: 1px solid black;")
+        self.setStyleSheet("background-color: qlineargradient(x1:1, y2:0, x2:1, y2:1, stop:0 #1e1e1e, stop:1 rgb(160, 20, 203));color: #fff; border: 1px solid grey;")
         input_layout = QVBoxLayout(input_container)
 
 
@@ -35,7 +35,7 @@ class ChatOverlay(QWidget):
 
         # Set white background for the exit button
         exit_button = QPushButton("X")
-        exit_button.setStyleSheet("background-color: red; color: white;")
+        exit_button.setStyleSheet("background-color: red; color: white; border:none; border-radius:8px;")
         exit_button.clicked.connect(self.exit_overlay)
         input_and_exit_layout.addWidget(exit_button)
 
