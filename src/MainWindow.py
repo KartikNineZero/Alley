@@ -1,6 +1,6 @@
 import re
 import os
-from PyQt5.QtCore import QUrl, Qt
+from PyQt5.QtCore import QUrl, Qt,QSize
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView
 from PyQt5.QtWidgets import (
@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar()
         self.addToolBar(toolbar)
 
+        self.setMinimumSize(QSize(600, 350))
         # Create an instance of ShortcutManager
         self.shortcut_manager = ShortcutManager(self)
         # Call the method to create shortcuts
