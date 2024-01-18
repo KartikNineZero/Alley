@@ -25,7 +25,6 @@ from urllib.parse import urlparse
 from src.CustomChatbot import CustomChatbot
 from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
-from src.BookmarksManager import BookmarksManager
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
 from src.DownloadManager import DownloadManager, DownloadDialog, DownloadModel
