@@ -27,10 +27,7 @@ from urllib.parse import urlparse
 from src.CustomChatbot import CustomChatbot
 from src.MediaDownloader import SaveFromNet
 from src.ChatOverlay import ChatOverlay
-<<<<<<< Updated upstream
-=======
 from src.BookmarksManager import BookmarkDialog
->>>>>>> Stashed changes
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
 from src.DownloadManager import DownloadManager, DownloadDialog, DownloadModel
