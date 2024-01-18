@@ -400,9 +400,14 @@ QMenu::separator {
             self.tabs.setCurrentWidget(browser)
             self.tabs.setTabText(self.tabs.currentIndex(), "Loading...")
 
-            browser.titleChanged.connect(
-                lambda title, browser=browser: self.update_tab_title(browser)
-            )
+            browser.titleChanged.connect(lambda title, browser=browser: self.update_tab_title(browser))
+            if self.current_browser():
+                browser.urlChanged.connect(lambda url, browser=browser: self.update_url(url) if self.current_browser() == browser else None)
+
+            browser.page().profile().downloadRequested.connect(self.on_download_requested)
+
+            # Set the favicon for the new tab
+            browser.loadFinished.connect(lambda: self.update_tab_title(browser))
 
             if self.current_browser():
                 browser.urlChanged.connect(
@@ -452,27 +457,27 @@ QMenu::separator {
     def update_tab_title(self, browser):
         # Get the domain name from the URL without "www."
         parsed_url = urlparse(browser.url().toString())
-        domain = (
-            parsed_url.hostname.replace("www.", "")
-            if parsed_url.hostname
-            else "Unknown"
-        )
+        domain = parsed_url.hostname.replace("www.", "") if parsed_url.hostname else "Unknown"
 
         # Get the webpage title and limit it to 15 characters
         title = browser.page().title()[:15]
 
-        # Fetch the website favicon
-        icon = browser.icon()
-        favicon = icon.pixmap(16, 16) if not icon.isNull() else None
-
-        # Set the tab text with the favicon, title, and show the full title on hover
-        tab_text = f"{'' if favicon is None else '    '}{title} "  # Adjust spacing as needed
+        # Set the tab text with the title and show the full title on hover
+        tab_text = f"{title} "  # Adjust spacing as needed
         self.tabs.setTabText(self.tabs.indexOf(browser), tab_text)
         self.tabs.setTabToolTip(self.tabs.indexOf(browser), browser.page().title())
 
-        # Set the favicon in the tab
-        if favicon is not None:
-            self.tabs.setTabIcon(self.tabs.indexOf(browser), QIcon(favicon))
+        # Fetch the website favicon
+        def favicon_changed(icon):
+            favicon_pixmap = icon.pixmap(16, 16) if not icon.isNull() else None
+            if favicon_pixmap is not None:
+                tab_icon = QIcon(favicon_pixmap)
+                self.tabs.setTabIcon(self.tabs.indexOf(browser), tab_icon)
+
+        # Connect the favicon_changed function to the iconChanged signal
+        browser.page().iconChanged.connect(favicon_changed)
+
+
 
 
     def close_tab(self, index):
