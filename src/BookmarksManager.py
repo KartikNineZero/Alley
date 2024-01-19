@@ -34,12 +34,6 @@ class BookmarkDialog(QDialog):
         folder_options_widget = QWidget()
         folder_options_layout = QHBoxLayout(folder_options_widget)
 
-        icon_path_add = os.path.abspath("add-folder.png")
-        icon_path_remove = os.path.abspath("delete-folder.png")
-
-        print(f"Absolute Path for Add Icon: {icon_path_add}")
-        print(f"Absolute Path for Remove Icon: {icon_path_remove}")
-
         add_folder_button = QPushButton()
         add_folder_button.setIcon(QIcon("add-folder.png"))
         add_folder_button.setText("Add Folder")
