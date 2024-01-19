@@ -1,7 +1,9 @@
 import json
-from PyQt5.QtCore import Qt, QPoint, QPropertyAnimation, QUrl
+import os
+from PyQt5.QtCore import Qt, QPoint, QPropertyAnimation, QUrl, QSize
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QLineEdit, QListWidget, QPushButton,
+    QDialog, QVBoxLayout, QLineEdit, QListWidget, QPushButton,QToolTip,
     QLabel, QMessageBox, QListWidgetItem, QComboBox, QWidget, QHBoxLayout,QInputDialog
 )
 from PyQt5.QtGui import QIcon
@@ -10,8 +12,10 @@ class BookmarkDialog(QDialog):
     def __init__(self, browser=None):
         super(BookmarkDialog, self).__init__()
 
+        QToolTip.setFont(QFont('SansSerif', 10))
+
         self.bookmarks = []  # List to store bookmarks
-        self.folders = ['Folder 1', 'Folder 2', 'Folder 3']  # List of folders
+        self.folders = ['Favorites', 'Personal', 'Work']  # List of folders
         self.clicked_color = "#45a049"  # Green color when clicked
 
         self.setWindowTitle('Bookmarks')
@@ -19,6 +23,8 @@ class BookmarkDialog(QDialog):
         self.setMinimumHeight(700)  # Set minimum height
 
         layout = QVBoxLayout()
+
+        
 
         layout.addWidget(QLabel("Enter a name for the bookmark:"))
         self.bookmark_name_input = QLineEdit()
@@ -28,17 +34,25 @@ class BookmarkDialog(QDialog):
         folder_options_widget = QWidget()
         folder_options_layout = QHBoxLayout(folder_options_widget)
 
+        icon_path_add = os.path.abspath("add-folder.png")
+        icon_path_remove = os.path.abspath("delete-folder.png")
+
+        print(f"Absolute Path for Add Icon: {icon_path_add}")
+        print(f"Absolute Path for Remove Icon: {icon_path_remove}")
+
         add_folder_button = QPushButton()
-        add_folder_button.setIcon(QIcon("remove.png"))  # Replace with your add folder icon
+        add_folder_button.setIcon(QIcon("add-folder.png"))
+        add_folder_button.setText("Add Folder")
         add_folder_button.setToolTip("Add Folder")
         add_folder_button.clicked.connect(self.add_folder)
-        add_folder_button.setStyleSheet("background-color: black; color: white;")
+        add_folder_button.setStyleSheet("background-color: black;")
 
         remove_folder_button = QPushButton()
-        remove_folder_button.setIcon(QIcon("folder.png"))  # Replace with your remove folder icon
+        remove_folder_button.setIcon(QIcon("delete-folder.png"))
+        remove_folder_button.setText("Remove Folder")
         remove_folder_button.setToolTip("Remove Folder")
         remove_folder_button.clicked.connect(self.remove_folder)
-        remove_folder_button.setStyleSheet("background-color: black; color: white;")
+        remove_folder_button.setStyleSheet("background-color: black;")
 
         folder_options_layout.addWidget(QLabel("Select a folder:"))
         self.folder_combo_box = QComboBox()
