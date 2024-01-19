@@ -1,6 +1,7 @@
 * {
     background-color: #1a1e21;
     color: #b1aaaa;
+    font-size: 15px;
 }
 
 QWidget{

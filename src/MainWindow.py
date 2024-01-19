@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         self.download_manager.hide()
         toolbar = QToolBar()
         self.addToolBar(toolbar)
+        toolbar.setFixedHeight(55)
 
         self.setMinimumSize(QSize(600, 350))
         # Create an instance of ShortcutManager
@@ -65,11 +66,10 @@ class MainWindow(QMainWindow):
         self.shortcut_manager.create_shortcuts()
         
         
-
-        icon_width = 20
-        icon_height = 20
-        self.icon_width = 10
-        self.icon_height = 10 
+        icon_width = 12
+        icon_height = 12
+        self.icon_width = 12
+        self.icon_height = 12 
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
         home_btn = QAction(QIcon(QPixmap(resource_path("Icons\\h.svg")).scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
@@ -81,21 +81,21 @@ class MainWindow(QMainWindow):
         toolbar.addAction(home_btn)
         
         back_btn = QAction(
-            QIcon(QPixmap(resource_path("Icons\\l.svg")).scaled(2*icon_width,2* icon_height)), "⮜ Navigate to Previous Page", self
+            QIcon(QPixmap(resource_path("Icons\\l.svg")).scaled(4*icon_width,4* icon_height)), "⮜ Navigate to Previous Page", self
         )
         back_btn.triggered.connect(
             lambda: self.current_browser().back() if self.current_browser() else None
         )
         toolbar.addAction(back_btn)
         forward_btn = QAction(
-            QIcon(QPixmap(resource_path("Icons\\rn.png")).scaled(2*icon_width,2* icon_height)), "⮞ Navigate to Next Page", self
+            QIcon(QPixmap(resource_path("Icons\\rn.png")).scaled(4*icon_width,4* icon_height)), "⮞ Navigate to Next Page", self
         )
         forward_btn.triggered.connect(
             lambda: self.current_browser().forward() if self.current_browser() else None
         )
         toolbar.addAction(forward_btn)
         reload_btn = QAction(
-            QIcon(QPixmap(resource_path("Icons\\rd.svg")).scaled(3*icon_width,3* icon_height)), "⟳ Reload the Page", self
+            QIcon(QPixmap(resource_path("Icons\\rd.svg")).scaled(4*icon_width,4* icon_height)), "⟳ Reload the Page", self
         )
         reload_btn.triggered.connect(
             lambda: self.current_browser().reload() if self.current_browser() else None
@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
         self.url_bar = QLineEdit()
         self.url_bar.setFixedHeight(34)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
-        self.url_bar.setStyleSheet("margin-left: 60%; margin-right: 60%; font-size: 15px")
+        self.url_bar.setStyleSheet("margin-left: 60%; margin-right: 60%; font-size: 14px")
         toolbar.addWidget(self.url_bar)
         toolbar_layout = QVBoxLayout(toolbar)
         toolbar_layout.addWidget(self.url_bar)
@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
         self.customize_ui_action = QAction("Customize", self)
         self.dropdown_menu.addAction(self.bookmarks_action)
         self.dropdown_menu.addAction(self.history_action)
+        icon_size = 24
         menu_stylesheet = """
 QMenu {
     background-color: qlineargradient(x2:1, y2:1, x2:1, y2:1, stop:0 #1e1e1e, stop:1 purple);
@@ -140,7 +141,7 @@ QMenu {
 }
 
 QMenu::item {
-    padding: 12px 12px;
+    padding: 12px 22px;
     color: #ffffff;
 }
 
@@ -154,6 +155,11 @@ QMenu::item:selected {
 	border-bottom-color: transparent;
 	border-left-width: 2px;
 }
+
+QMenu::icon {{
+    width: {icon_size}px;
+    height: {icon_size}px;
+}}
 
 QMenu::separator {
     height: 1px;
