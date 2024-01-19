@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
         home_btn = QAction(QIcon(QPixmap(resource_path("Icons\\h.svg")).scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
             
         )
+        toolbar.setMovable(False)
         #home_btn.setShortcut('Alt+H')
         home_btn.triggered.connect(self.navigate_home)
         toolbar.addAction(home_btn)
