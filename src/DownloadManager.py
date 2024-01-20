@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import (
     QApplication,
@@ -13,12 +14,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 class DownloadDialog(QDialog):
-    def __init__(self, url, filename, parent=None):
+    def __init__(self, url, filename, parent=None, downloads=None):
         super().__init__(parent)
         self.setWindowTitle('Download File')
 
         self.url = url
         self.filename = filename
+        self.parent = parent  # Store the parent reference
+        self.downloads = downloads or []  # Set the downloads list to an empty list if not provided
         self.bytes_received = 0
         self.bytes_total = 0
 
@@ -43,6 +46,9 @@ class DownloadDialog(QDialog):
         # Start the download
         self.start_download()
 
+    def set_downloads(self, downloads):
+        self.downloads = downloads  # Set the downloads list
+
     def start_download(self):
         self.networkManager = QNetworkAccessManager()
         self.reply = self.networkManager.get(QNetworkRequest(QUrl(self.url)))
@@ -63,15 +69,29 @@ class DownloadDialog(QDialog):
     def download_finished(self):
         self.file.close()
 
+        # Save the download information to a JSON file
+        self.save_downloads()
+
+    def save_downloads(self):
+        try:
+            with open("downloads.json", "w") as file:
+                json.dump(self.downloads, file)
+        except Exception as e:
+            print(f"Error saving downloads: {e}")
+
     def delete_download(self):
         try:
             os.remove(self.filepath)
             print(f"File '{self.filename}' deleted successfully.")
+            # Remove the download from the list and save the updated list
+            self.downloads.remove((self.url, self.filename))
+            self.save_downloads()
         except Exception as e:
             print(f"Error deleting file '{self.filename}': {e}")
 
         # Close the dialog
         self.close()
+        
 from PyQt5.QtCore import QAbstractListModel, Qt
 
 class DownloadModel(QAbstractListModel):
@@ -91,7 +111,9 @@ class DownloadManager(QDialog):
         super().__init__(parent)
         self.setWindowTitle('Download Manager')
 
-        self.downloads = []
+        #self.downloads = []
+        # Load downloads from the file when initializing
+        self.downloads = self.load_downloads()
 
         layout = QVBoxLayout()
 
@@ -106,6 +128,20 @@ class DownloadManager(QDialog):
     def add_download(self, url, filename):
         self.downloads.append((url, filename))
         self.model.layoutChanged.emit()
+
+        # Pass the downloads list to the DownloadDialog
+        dialog = DownloadDialog(url, filename, self, self.downloads)
+        dialog.exec_()
+
+    def load_downloads(self):
+        try:
+            with open("downloads.json", "r") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return []
+        except Exception as e:
+            print(f"Error loading downloads: {e}")
+            return []
 
     def listview_clicked(self, index):
         url, filename = self.downloads[index.row()]
