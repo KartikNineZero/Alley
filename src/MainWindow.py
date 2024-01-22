@@ -64,6 +64,9 @@ class MainWindow(QMainWindow):
         self.shortcut_manager = ShortcutManager(self)
         # Call the method to create shortcuts
         self.shortcut_manager.create_shortcuts()
+        # Create a central history object for all tabs
+        #self.central_history = QWebEngineHistory()
+        self.central_history = []
         
         
         icon_width = 12
@@ -398,6 +401,9 @@ QMenu::separator {
         else:
             browser = QWebEngineView()
 
+            # Connect the browser's urlChanged signal to track visited URLs
+            browser.urlChanged.connect(self.update_central_history)
+
             if url:
                 browser.setUrl(QUrl(url))
             else:
@@ -416,6 +422,9 @@ QMenu::separator {
             # Set the favicon for the new tab
             browser.loadFinished.connect(lambda: self.update_tab_title(browser))
 
+            # Set the central history to the browser's history
+            #browser.page().setHistory(self.central_history)
+            
             if self.current_browser():
                 browser.urlChanged.connect(
                     lambda url, browser=browser: self.update_url(url)
@@ -424,6 +433,12 @@ QMenu::separator {
                 )
             
             browser.page().profile().downloadRequested.connect(self.on_download_requested)
+
+    def update_central_history(self, q):
+        # Update the central history with the new URL
+        url = q.toString()
+        if url not in self.central_history:
+            self.central_history.append(url)
 
     #commitfix
     # Helper methods for file and data checks
@@ -576,14 +591,28 @@ QMenu::separator {
         customize_dialog.exec_()
 
     def show_history(self):
-        if self.current_browser():
+        # Use the central history for showing the unified history
+        if self.central_history:
+            # Sort the central history for display
+            sorted_history = sorted(self.central_history)
             history_menu = QMenu(self)
-            for entry in self.current_browser().history().items():
-                action = history_menu.addAction(entry.title())
+            for url in sorted_history:
+                # Display a truncated version of the URL
+                truncated_url = self.truncate_url(url)
+                action = history_menu.addAction(truncated_url)
                 action.triggered.connect(
-                    lambda _, url=entry.url(): self.current_browser().setUrl(url)
+                    lambda _, url=url: self.current_browser().setUrl(QUrl(url))
+                    if self.current_browser()
+                    else None
                 )
             history_menu.exec_(QCursor.pos())
+
+    def truncate_url(self, url, max_length=40):
+        # Truncate the URL to a maximum length
+        if len(url) > max_length:
+            return f"{url[:max_length-3]}..."
+        return url
+
             
     def open_chatbot_overlay(self):
         # Toggle the visibility of the chat overlay
