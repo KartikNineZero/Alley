@@ -45,6 +45,7 @@ def resource_path(relative_path):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.shortcut_manager = ShortcutManager(self)
 
         self.setWindowTitle("Alley Browser")
         self.setWindowIcon(QIcon(resource_path("Icons\\Logo.png")))
@@ -641,6 +642,26 @@ QMenu::separator {
         QMessageBox.information(
             self, "Downloads", f"Downloaded Files:\n{downloads_text}"
         )
+
+    def cut_text(self):
+        if hasattr(self, 'current_browser') and self.current_browser():
+            self.current_browser().page().triggerAction(QWebEnginePage.Cut)
+
+    def copy_text(self):
+        if hasattr(self, 'current_browser') and self.current_browser():
+            self.current_browser().page().triggerAction(QWebEnginePage.Copy)
+
+    def paste_text(self):
+        if hasattr(self, 'current_browser') and self.current_browser():
+            self.current_browser().page().triggerAction(QWebEnginePage.Paste)
+
+    def undo_text(self):
+        if hasattr(self, 'current_browser') and self.current_browser():
+            self.current_browser().page().triggerAction(QWebEnginePage.Undo)
+
+    def redo_text(self):
+        if hasattr(self, 'current_browser') and self.current_browser():
+            self.current_browser().page().triggerAction(QWebEnginePage.Redo)
 
     def inspect_element(self):
         if self.current_browser():

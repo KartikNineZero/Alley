@@ -59,6 +59,34 @@ class ShortcutManager:
         downloads_shortcut = QShortcut(QKeySequence("Ctrl+J"), self.main_window)
         downloads_shortcut.activated.connect(self.show_downloads)
 
+        # Add a shortcut for creating a new window (Ctrl+N)
+        new_window_shortcut = QShortcut(QKeySequence("Ctrl+N"), self.main_window)
+        new_window_shortcut.activated.connect(self.create_new_window)
+
+        # Ctrl + K to focus the search or address bar
+        ctrl_k_shortcut = QShortcut(QKeySequence("Ctrl+K"), self.main_window)
+        ctrl_k_shortcut.activated.connect(self.main_window.focus_address_bar)
+
+        # Cut (Ctrl+X)
+        cut_shortcut = QShortcut(QKeySequence("Ctrl+X"), self.main_window)
+        cut_shortcut.activated.connect(self.main_window.cut_text)
+
+        # Copy (Ctrl+C)
+        copy_shortcut = QShortcut(QKeySequence("Ctrl+C"), self.main_window)
+        copy_shortcut.activated.connect(self.main_window.copy_text)
+
+        # Paste (Ctrl+V)
+        paste_shortcut = QShortcut(QKeySequence("Ctrl+V"), self.main_window)
+        paste_shortcut.activated.connect(self.main_window.paste_text)
+
+        # Undo (Ctrl+Z)
+        undo_shortcut = QShortcut(QKeySequence("Ctrl+Z"), self.main_window)
+        undo_shortcut.activated.connect(self.main_window.undo_text)
+
+        # Redo (Ctrl+Y or Ctrl+Shift+Z)
+        redo_shortcut = QShortcut(QKeySequence("Ctrl+Y"), self.main_window)
+        redo_shortcut.activated.connect(self.main_window.redo_text)
+
 
     def add_shortcut(self, key_sequence, callback, tooltip=None):
         shortcut = QShortcut(QKeySequence(key_sequence), self.main_window)
@@ -143,3 +171,11 @@ class ShortcutManager:
         if hasattr(self.main_window, 'downloads_action'):
             # Trigger the action directly
             self.main_window.downloads_action.trigger()
+
+    def create_new_window(self):
+        from src.MainWindow import MainWindow
+        # Create a new instance of the main window and show it
+        new_window = MainWindow()
+        new_window.show()
+
+    
