@@ -417,8 +417,7 @@ QMenu::separator {
             browser.titleChanged.connect(lambda title, browser=browser: self.update_tab_title(browser))
             if self.current_browser():
                 browser.urlChanged.connect(lambda url, browser=browser: self.update_url(url) if self.current_browser() == browser else None)
-
-            browser.page().profile().downloadRequested.connect(self.on_download_requested)
+                browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
             # Set the favicon for the new tab
             browser.loadFinished.connect(lambda: self.update_tab_title(browser))
@@ -433,7 +432,7 @@ QMenu::separator {
                     else None
                 )
             
-            browser.page().profile().downloadRequested.connect(self.on_download_requested)
+                browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
     def update_central_history(self, q):
         # Update the central history with the new URL
@@ -464,6 +463,7 @@ QMenu::separator {
 
         self.tabs.addTab(browser, "New Tab")
         self.tabs.setCurrentWidget(browser)
+        browser.page().profile().downloadRequested.connect(self.on_download_requested)
         self.tabs.setTabText(self.tabs.currentIndex(), "Loading...")
 
         browser.titleChanged.connect(
