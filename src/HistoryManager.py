@@ -1,7 +1,7 @@
 import json
 import os
 from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon,QCursor
 from PyQt5.QtWidgets import QAction, QMenu, QMessageBox
 
 class HistoryManager:
@@ -58,8 +58,8 @@ class HistoryManager:
         if browser:
             browser.setUrl(url)
 
-    def add_history_action(self, main_window):
-        history_icon = QIcon(os.path.join(os.path.dirname(__file__), "Icons", "history.png"))
-        history_action = QAction(history_icon, "History", main_window)
-        history_action.triggered.connect(lambda: self.show_history_menu(main_window.mapToGlobal(QCursor.pos())))
-        return history_action
+def add_history_action(self, main_window):
+    history_icon = QIcon(os.path.join(os.path.dirname(__file__), "Icons", "history.png"))
+    history_action = QAction(history_icon, "History", main_window)
+    history_action.triggered.connect(lambda: self.show_history_menu(main_window.mapToGlobal(QCursor.pos())))
+    return history_action

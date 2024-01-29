@@ -2,4 +2,4 @@ src/__pycache__/*
 Classes/__pycache__/*
 src/trial.py
 tabs_data.json
-tabs_data.json
+__pycache__/*
