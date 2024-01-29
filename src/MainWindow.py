@@ -31,6 +31,7 @@ from src.BookmarksManager import BookmarkDialog
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
 from src.DownloadManager import DownloadManager, DownloadDialog, DownloadModel
+from src.HistoryManager import HistoryManager
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -56,6 +57,8 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.download_manager = DownloadManager(self)
         self.download_manager.hide()
+        self.history_manager = HistoryManager(self)
+        self.history_manager.load_history()
         toolbar = QToolBar()
         self.addToolBar(toolbar)
         toolbar.setFixedHeight(55)
@@ -65,9 +68,6 @@ class MainWindow(QMainWindow):
         self.shortcut_manager = ShortcutManager(self)
         # Call the method to create shortcuts
         self.shortcut_manager.create_shortcuts()
-        # Create a central history object for all tabs
-        #self.central_history = QWebEngineHistory()
-        self.central_history = []
         
         
         icon_width = 12
@@ -228,7 +228,7 @@ QMenu::separator {
         toolbar.addWidget(dropdown_btn)
 
         self.bookmarks_action.triggered.connect(self.show_bookmarks)
-        self.history_action.triggered.connect(self.show_history)
+        self.history_action.triggered.connect(lambda: self.history_manager.show_history_menu(self.mapToGlobal(QCursor.pos())))
 
         # Chatbot instance
         self.chatbot = CustomChatbot()
@@ -388,7 +388,9 @@ QMenu::separator {
 
     def closeEvent(self, event):
         self.save_tabs_data()  # Save tabs data when the application is closed
+        self.history_manager.save_history()  # Save history when the application is closed
         event.accept()
+
 
     def current_browser(self):
         return self.tabs.currentWidget() if self.tabs.count() > 0 else None
@@ -403,8 +405,6 @@ QMenu::separator {
             browser = QWebEngineView()
 
             # Connect the browser's urlChanged signal to track visited URLs
-            browser.urlChanged.connect(self.update_central_history)
-
             if url:
                 browser.setUrl(QUrl(url))
             else:
@@ -422,8 +422,6 @@ QMenu::separator {
             # Set the favicon for the new tab
             browser.loadFinished.connect(lambda: self.update_tab_title(browser))
 
-            # Set the central history to the browser's history
-            #browser.page().setHistory(self.central_history)
             
             if self.current_browser():
                 browser.urlChanged.connect(
@@ -434,11 +432,6 @@ QMenu::separator {
             
                 browser.page().profile().downloadRequested.connect(self.on_download_requested)
 
-    def update_central_history(self, q):
-        # Update the central history with the new URL
-        url = q.toString()
-        if url not in self.central_history:
-            self.central_history.append(url)
 
     #commitfix
     # Helper methods for file and data checks
@@ -538,14 +531,23 @@ QMenu::separator {
             self.current_browser().setUrl(QUrl(url))
 
     def update_url(self, q):
-        if self.sender() == self.current_browser():
-            self.url_bar.setText(q.toString())
+        if self.current_browser() and self.sender() == self.current_browser():
+            url = q.toString()
+            title = self.current_browser().page().title()
+            self.history_manager.add_to_history(url, title)
+            self.url_bar.setText(url)
             self.url_bar.setCursorPosition(0)
+
 
     def update_url_from_tab(self, index):
         current_browser = self.tabs.widget(index)
         if current_browser:
+            if current_browser == self.current_browser():
+                url = current_browser.url()
+                title = current_browser.page().title()
+                self.history_manager.add_to_history(url.toString(), title)
             self.update_url(current_browser.url())
+
 
     def show_bookmarks(self):
         if not hasattr(self, 'bookmark_dialog') or not self.bookmark_dialog.isVisible():
@@ -591,22 +593,6 @@ QMenu::separator {
         customize_dialog = CustomizeDialog(self)
         customize_dialog.exec_()
 
-    def show_history(self):
-        # Use the central history for showing the unified history
-        if self.central_history:
-            # Sort the central history for display
-            sorted_history = sorted(self.central_history)
-            history_menu = QMenu(self)
-            for url in sorted_history:
-                # Display a truncated version of the URL
-                truncated_url = self.truncate_url(url)
-                action = history_menu.addAction(truncated_url)
-                action.triggered.connect(
-                    lambda _, url=url: self.current_browser().setUrl(QUrl(url))
-                    if self.current_browser()
-                    else None
-                )
-            history_menu.exec_(QCursor.pos())
 
     def truncate_url(self, url, max_length=40):
         # Truncate the URL to a maximum length

@@ -1,5 +1,3 @@
-# MediaDownloader.py
-
 import os
 import requests
 from PyQt5.QtCore import Qt
