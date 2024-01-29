@@ -265,47 +265,47 @@ QMenu::separator {
         print("Bug Here")
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
-        self.load_tabs_data()  # Load saved tabs when the application starts
+        self.load_tabs_data ()  # Load saved tabs when the application starts
 
 
     def on_download_requested(self, download):
-        download.finished.connect(self.on_download_finished)
-        download.downloadProgress.connect(self.on_download_progress)
+            download.finished.connect(self.on_download_finished)
+            download.downloadProgress.connect(self.on_download_progress)
 
-        # Get suggested file name and MIME type
-        suggested_file_name = download.suggestedFileName()
-        mime_type = download.mimeType()
+            # Get suggested file name and MIME type
+            suggested_file_name = download.suggestedFileName()
+            mime_type = download.mimeType()
 
-        # Use the default Downloads directory
-        default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+            # Use the default Downloads directory
+            default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
 
-        # Open a dialog to ask the user where to save the file
-        download_path, _ = QFileDialog.getSaveFileName(
-            self, "Save File", os.path.join(default_downloads_path, suggested_file_name),
-            f"{mime_type} (*.{suggested_file_name.split('.')[-1]})"
-        )
+            # Open a dialog to ask the user where to save the file
+            download_path, _ = QFileDialog.getSaveFileName(
+                self, "Save File", os.path.join(default_downloads_path, suggested_file_name),
+                f"{mime_type} (*.{suggested_file_name.split('.')[-1]})"
+            )
 
-        if download_path:
-            download.setPath(download_path)
-            download.accept()
-            
-            # Add the download to the DownloadManager
-            self.download_manager.add_download(download.url().toString(), suggested_file_name)
-        else:
-            download.cancel()
+            if download_path:
+                download.setPath(download_path)
+                download.accept()
+                
+                # Add the download to the DownloadManager
+                self.download_manager.add_download(download.url().toString(), suggested_file_name)
+            else:
+                download.cancel()
 
     def on_download_progress(self, bytes_received, bytes_total):
-        print(f"Downloaded {bytes_received} of {bytes_total} bytes")
+            print(f"Downloaded {bytes_received} of {bytes_total} bytes")
 
     def on_download_finished(self):
-        print("Download finished")
-         
+            print("Download finished")
+            
     def show_download_manager(self):
     # Toggle the visibility of the DownloadManager
         self.download_manager.setVisible(not self.download_manager.isVisible())
-
+        
     def show_download_manager(self):
-        self.download_manager.show()
+            self.download_manager.show()
 
     def reset_zoom(self):
         if self.current_browser():
