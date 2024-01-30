@@ -220,14 +220,15 @@ class BookmarkDialog(QDialog):
         self.update_bookmarks_list()
     
     def move_center(self):
-        # Move the dialog to the center of the main window
+        # Move the dialog to the left side and center vertically
         if self.main_window:
             main_window_geometry = self.main_window.geometry()
             dialog_width = self.width()
             dialog_height = self.height()
-            x = main_window_geometry.x() + (main_window_geometry.width() - dialog_width) // 2
+            x = main_window_geometry.x()  # Set x-coordinate to the left side
             y = main_window_geometry.y() + (main_window_geometry.height() - dialog_height) // 2
             self.setGeometry(x, y, dialog_width, dialog_height)
+
 
 
     def update_button_styles(self):
