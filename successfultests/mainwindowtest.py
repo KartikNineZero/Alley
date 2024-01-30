@@ -1,3 +1,19 @@
+"""
+Tests for the resource_path function which handles resolving resource 
+paths when running as a frozen executable or normally as a module.
+
+Covers different use cases like:
+- Running normally as __main__
+- Running as frozen executable
+- Empty relative path
+- Absolute path 
+- Invalid relative path
+- Relative path with subdirectories
+- Special characters in path
+- Different environments like __main__ vs frozen
+
+Ensures proper joining of paths and raising errors as needed.
+"""
 import os
 import sys
 from src.MainWindow import resource_path

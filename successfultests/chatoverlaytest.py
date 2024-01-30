@@ -1,3 +1,16 @@
+"""
+Test suite for ChatOverlay UI component.
+
+Covers:
+- Initializing ChatOverlay
+- Setting up UI elements
+- Testing UI interaction methods like exit_overlay and clear_chat_display
+- Stubbing chatbot integration to test UI flow
+
+Limitations: 
+- Full UI behavior requires application launch
+- Actual chatbot integration not tested here
+"""
 import pytest
 from pytestqt.qt_compat import qt_api
 from PyQt5 import QtCore

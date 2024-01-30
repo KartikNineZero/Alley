@@ -1,3 +1,14 @@
+"""
+Unit tests for a custom chatbot class.
+
+Tests the chatbot's response to various inputs like greetings, empty
+strings, and unsupported questions. This allows us to validate the 
+chatbot's responses match what we expect for common use cases.
+
+The tests are part of the module so they can access the chatbot class 
+directly. But they are designed to test the class as a black box 
+by only interacting with the public API.
+"""
 import unittest
 from src.CustomChatbot import CustomChatbot
 
