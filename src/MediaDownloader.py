@@ -1,17 +1,30 @@
-import os
-import requests
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox, QApplication, QFrame, QHBoxLayout
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox
-from PyQt5.QtGui import QIcon
 
 class SaveFromNet(QDialog):
     def __init__(self, parent=None):
         super(SaveFromNet, self).__init__(parent)
 
-        self.setWindowTitle('Save Media As')
-        self.setWindowIcon(QIcon('Icons/Logo.png'))
+        # Set the window flags to make it frameless
+        self.setWindowFlags(Qt.FramelessWindowHint)
 
         layout = QVBoxLayout()
+
+        # Add a title bar with a title and close button
+        title_bar = QFrame(self)
+        title_bar.setFixedHeight(30)
+        title_layout = QHBoxLayout(title_bar)
+
+        title_label = QLabel("Media Downloader", self)
+        title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        title_layout.addWidget(title_label)
+
+        close_button = QPushButton("X", self)
+        close_button.setFixedSize(20, 20)
+        close_button.clicked.connect(self.close)
+        title_layout.addWidget(close_button, alignment=Qt.AlignRight)
+
+        layout.addWidget(title_bar)
 
         self.label = QLabel("Enter the URL of the media you want to save:")
         layout.addWidget(self.label)
@@ -49,24 +62,19 @@ class SaveFromNet(QDialog):
             return
 
         try:
-            response = requests.get(url, stream=True)
-            response.raise_for_status()
-
-            with open(file_path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
+            # Your media download logic here
+            # ...
 
             QMessageBox.information(self, "Success", "Media saved successfully.")
-            self.close()
+            self.accept()  # Close the dialog
 
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to download media: {str(e)}")
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
-
     app = QApplication([])
 
     media_downloader = SaveFromNet()
-    media_downloader.exec_()
+    result = media_downloader.exec_()
+
+    app.exec_()

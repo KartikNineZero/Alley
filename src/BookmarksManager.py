@@ -13,14 +13,14 @@ class BookmarkDialog(QDialog):
         super(BookmarkDialog, self).__init__()
 
         QToolTip.setFont(QFont('SansSerif', 10))
-
+        self.setWindowFlags(Qt.FramelessWindowHint) 
         self.bookmarks = []  # List to store bookmarks
         self.folders = ['Favorites', 'Personal', 'Work']  # List of folders
-        self.clicked_color = "#45a049"  # Green color when clicked
+        self.clicked_color = "#45a049"  
 
         self.setWindowTitle('Bookmarks')
-        self.setMinimumWidth(250)  # Reduced minimum width
-        self.setMinimumHeight(700)  # Set minimum height
+        self.setMinimumWidth(250)  
+        self.setMinimumHeight(700) 
 
         layout = QVBoxLayout()
 
@@ -94,12 +94,11 @@ class BookmarkDialog(QDialog):
         # Apply QSS for styling and animation
         self.update_button_styles()
 
-        # Set initial position off-screen to the left
-        self.setGeometry(-self.width(), self.y(), self.width(), self.height())
+        self.move_center()
 
     def showEvent(self, event):
-        # Override showEvent to add slide-in animation
-        self.slide_in_animation()
+        # Override showEvent to move the dialog to the center without animation
+        self.move_center()
 
     def slide_in_animation(self):
         self.animation = self.pos_anim(self.pos(), QPoint(0, self.y()), 150, self)
@@ -219,6 +218,16 @@ class BookmarkDialog(QDialog):
         """
         self.bookmarks = bookmarks
         self.update_bookmarks_list()
+    
+    def move_center(self):
+        # Move the dialog to the center of the main window
+        if self.main_window:
+            main_window_geometry = self.main_window.geometry()
+            dialog_width = self.width()
+            dialog_height = self.height()
+            x = main_window_geometry.x() + (main_window_geometry.width() - dialog_width) // 2
+            y = main_window_geometry.y() + (main_window_geometry.height() - dialog_height) // 2
+            self.setGeometry(x, y, dialog_width, dialog_height)
 
 
     def update_button_styles(self):

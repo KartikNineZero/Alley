@@ -30,7 +30,7 @@ from src.ChatOverlay import ChatOverlay
 from src.BookmarksManager import BookmarkDialog
 from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
-from src.DownloadManager import DownloadManager, DownloadDialog, DownloadModel
+from src.DownloadManager import DownloadDialog,DownloadManager
 from src.HistoryManager import HistoryManager
 
 def resource_path(relative_path):
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.setCentralWidget(self.tabs)
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
-        self.download_manager = DownloadManager(self)
+        self.download_manager = DownloadManager(parent=self)
         self.download_manager.hide()
         self.history_manager = HistoryManager(self)
         self.history_manager.load_history()
@@ -272,14 +272,11 @@ QMenu::separator {
         download.finished.connect(self.on_download_finished)
         download.downloadProgress.connect(self.on_download_progress)
 
-        # Get suggested file name and MIME type
         suggested_file_name = download.suggestedFileName()
         mime_type = download.mimeType()
 
-        # Use the default Downloads directory
         default_downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
 
-        # Open a dialog to ask the user where to save the file
         download_path, _ = QFileDialog.getSaveFileName(
             self, "Save File", os.path.join(default_downloads_path, suggested_file_name),
             f"{mime_type} (*.{suggested_file_name.split('.')[-1]})"
@@ -288,8 +285,8 @@ QMenu::separator {
         if download_path:
             download.setPath(download_path)
             download.accept()
-            
-            # Add the download to the DownloadManager
+
+            # Use the DownloadManager to add the download
             self.download_manager.add_download(download.url().toString(), suggested_file_name)
         else:
             download.cancel()
@@ -301,7 +298,7 @@ QMenu::separator {
         print("Download finished")
          
     def show_download_manager(self):
-    # Toggle the visibility of the DownloadManager
+    # Toggle the visibility of the DownloadDialog
         self.download_manager.setVisible(not self.download_manager.isVisible())
 
     def show_download_manager(self):
