@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import (
     QMessageBox
 )
 
-
 class DownloadDialog(QDialog):
     def __init__(self, url, filename, parent=None, downloads=None):
         super().__init__(parent)
@@ -52,24 +51,18 @@ class DownloadDialog(QDialog):
         pass
 
     def delete_download(self):
-        confirmation = QMessageBox.question(
-            self,
-            'Confirmation',
-            f"Do you really want to delete {self.filename}?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-
-        if confirmation == QMessageBox.Yes:
-            try:
+        try:
+            if os.path.exists(self.filepath):
                 os.remove(self.filepath)
                 print(f"{self.filename} deleted")
                 self.downloads.remove((self.url, self.filename))
                 self.save_downloads()
-            except OSError as e:
-                print(f"Failed to delete {self.filename}: {e}")
+            else:
+                print(f"File not found: {self.filename}")
+        except OSError as e:
+            print(f"Failed to delete {self.filename}: {e}")
 
-            self.close()
+        self.close()
 
     def save_downloads(self):
         try:
@@ -111,7 +104,6 @@ class DownloadDialog(QDialog):
 
         return layout
 
-
 from PyQt5.QtCore import QAbstractListModel
 
 class DownloadModel(QAbstractListModel):
@@ -131,8 +123,27 @@ class DownloadManager(QDialog):
         super().__init__(parent)
         self.setWindowTitle('Download Manager')
         self.setGeometry(100, 100, 800, 400)  # Set a larger window size
-        # ... rest of the code ...
-        self.setWindowTitle('Download Manager')
+
+        self.downloads = self.load_downloads()
+
+        layout = QVBoxLayout()
+
+        self.listView = QListView()
+        self.model = DownloadModel(self.downloads)
+        self.listView.setModel(self.model)
+        self.listView.clicked.connect(self.listview_clicked)
+        layout.addWidget(self.listView)
+
+        self.deleteSelectedButton = QPushButton('Delete Selected')
+        self.deleteSelectedButton.clicked.connect(self.delete_selected)
+        layout.addWidget(self.deleteSelectedButton)
+
+        self.clearAllButton = QPushButton('Clear All')
+        self.clearAllButton.clicked.connect(self.clear_all)
+        layout.addWidget(self.clearAllButton)
+
+        self.setLayout(layout)
+
         self.setStyleSheet('''
             QDialog {
                 background-color: #1E1E1E;  /* Dark gray background */
@@ -153,29 +164,11 @@ class DownloadManager(QDialog):
             }
         ''')
 
-        self.downloads = self.load_downloads()
-
-        layout = QVBoxLayout()
-
-        self.listView = QListView()
-        self.model = DownloadModel(self.downloads)
-        self.listView.setModel(self.model)
-        self.listView.clicked.connect(self.listview_clicked)
-        layout.addWidget(self.listView)
-
-        self.deleteSelectedButton = QPushButton('Delete Selected')
-        self.deleteSelectedButton.clicked.connect(self.delete_selected)
-        layout.addWidget(self.deleteSelectedButton)
-
-        self.setLayout(layout)
-
     def add_download(self, url, filename):
         self.downloads.append((url, filename))
         self.model.layoutChanged.emit()
         # Add the download to the list and save
         self.save_downloads()
-
-        # Optionally, you can handle other aspects of the download here
 
     def save_downloads(self):
         try:
@@ -219,31 +212,33 @@ class DownloadManager(QDialog):
         if not selected_indexes:
             return
 
-        selected_index = selected_indexes[0]
-        confirmation = QMessageBox.question(
-            self,
-            'Confirmation',
-            'Do you really want to delete the selected item?',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
+        try:
+            selected_index = selected_indexes[0]
+            selected_row = selected_index.row()
 
-        if confirmation == QMessageBox.Yes:
-            try:
-                selected_row = selected_index.row()
-                self.model.beginRemoveRows(selected_index.parent(), selected_row, selected_row)
-                url, filename = self.model.downloads[selected_row]
-                file_path = os.path.join(os.path.expanduser("~"), "Downloads", filename)
+            self.model.beginRemoveRows(selected_index.parent(), selected_row, selected_row)
+            url, filename = self.model.downloads[selected_row]
+            file_path = os.path.join(os.path.expanduser("~"), "Downloads", filename)
 
-                print(f"Deleting file: {file_path}")  # Log the file path for debugging
+            print(f"Deleting file: {file_path}")  # Log the file path for debugging
 
+            if os.path.exists(file_path):
                 os.remove(file_path)
                 print(f"{filename} deleted")
-                self.model.downloads.pop(selected_row)
+                del self.model.downloads[selected_row]  # Use 'del' to remove item from list
                 self.model.endRemoveRows()
                 self.save_downloads()
-            except OSError as e:
-                print(f"Failed to delete the item: {e}")
+            else:
+                print(f"File not found: {filename}")
+        except OSError as e:
+            print(f"Failed to delete the item: {e}")
+
+    def clear_all(self):
+        # Clear all downloads and update the model
+        self.model.beginRemoveRows(self.model.index(0, 0), 0, len(self.downloads) - 1)
+        self.downloads.clear()
+        self.model.endRemoveRows()
+        self.save_downloads()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
