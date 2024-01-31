@@ -1,3 +1,13 @@
+"""
+Unit tests for the BookmarkDialog class.
+
+Includes tests for:
+
+- Saving and removing bookmarks
+- Opening bookmarks
+- Adding and removing bookmark folders
+
+"""
 import unittest
 from unittest.mock import MagicMock
 from src.BookmarksManager import BookmarkDialog

@@ -1,3 +1,11 @@
+"""
+Unit tests for OverlayWidget.
+
+Tests the behavior of OverlayWidget during showEvent:
+- Setting geometry to match parent 
+- Setting transparent background
+- Adding default border
+"""
 import unittest
 from src.OverlayWidget import OverlayWidget
 from PyQt5.QtWidgets import QWidget, QApplication

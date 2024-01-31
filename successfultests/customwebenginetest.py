@@ -1,3 +1,11 @@
+"""Tests for setting cookies in CustomWebEnginePage.
+
+The tests verify that:
+
+- setCookie adds a cookie with the expected name and value
+- setCookie replaces existing cookies with the same name 
+- setCookie sets the expected cookie attributes
+"""
 import pytest
 from PyQt5.QtNetwork import QNetworkCookie
 from src.CustomWebEnginePage import CustomWebEnginePage

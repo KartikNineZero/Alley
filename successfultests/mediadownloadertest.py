@@ -1,3 +1,11 @@
+"""
+Unit test cases for the SaveFromNet dialog in MediaDownloader.
+
+Contains tests for:
+- Initializing the dialog
+- Selecting a file path 
+- Saving media with invalid/valid inputs
+"""
 import unittest
 from PyQt5.QtTest import QTest
 from src.MediaDownloader import SaveFromNet

@@ -1,3 +1,12 @@
+"""
+Tests for the CustomizeDialog class.
+
+Sets up a fixture dialog instance and tests:
+- Initial state of dialog matches expected 
+- Switching to dark mode updates styles correctly
+- Switching to light mode updates styles correctly
+- Switching to default mode clears styles
+"""
 import pytest
 from src.CustomizeDialog import CustomizeDialog
 

@@ -29,9 +29,9 @@ class TestDownloadDialog(unittest.TestCase):
         self.assertIsNotNone(dialog.networkManager)
         self.assertIsNotNone(dialog.reply)
 
-    def test_delete_download(self):
+    def test_delete_all_downloads(self):
         dialog = DownloadDialog('url', 'file.zip')
-        dialog.delete_download()
+        dialog.delete_all_downloads()
         self.assertTrue(dialog.downloads == [])
 
 if __name__ == '__main__':
