@@ -18,7 +18,7 @@ class DownloadDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
 
-        delete_icon = QIcon('delete_icon.png')
+        delete_icon = QIcon('deletedwnld.png')
         delete_icon_rect = option.rect.adjusted(option.rect.width() - 20, 0, 0, 0)
         delete_icon.paint(painter, delete_icon_rect)
 
@@ -48,6 +48,10 @@ class DownloadDialog(QDialog):
         self.showInFolderButton.clicked.connect(self.show_in_folder)
         layout.addWidget(self.showInFolderButton)
 
+        self.deleteButton = QPushButton('Delete')
+        self.deleteButton.clicked.connect(self.delete_download)
+        layout.addWidget(self.deleteButton)
+
         self.setLayout(layout)
 
         self.start_download()
@@ -57,58 +61,23 @@ class DownloadDialog(QDialog):
         pass
 
     def delete_download(self):
-        try:
-            if os.path.exists(self.filepath):
-                os.remove(self.filepath)
-                print(f"{self.filename} deleted")
-                self.downloads.remove((self.url, self.filename, self.dirpath))
-                self.save_downloads()
-            else:
-                print(f"File not found: {self.filename}")
-        except OSError as e:
-            print(f"Failed to delete {self.filename}: {e}")
+        url, filename, path = self.url, self.filename, self.dirpath
+        response = QMessageBox.question(self, 'Delete Download',
+                                        f"Do you want to delete {filename}?",
+                                        QMessageBox.Yes | QMessageBox.No)
 
-        self.close()
+        if response == QMessageBox.Yes:
+            filepath = os.path.join(path, filename)
+            try:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"{filename} deleted from the actual location")
+                else:
+                    print(f"File not found: {filename}")
+            except OSError as e:
+                print(f"Failed to delete {filename} from the actual location: {e}")
 
-    def save_downloads(self):
-        try:
-            with open("downloads.json", "w") as file:
-                json.dump(self.downloads, file)
-        except Exception as e:
-            print(f"Error saving downloads: {e}")
-
-    def open_file(self):
-        try:
-            os.startfile(self.filepath)
-        except OSError as e:
-            print(f"Failed to open the file: {e}")
-
-    def open_folder(self):
-        try:
-            folder_path = os.path.dirname(self.filepath)
-            os.startfile(folder_path)
-        except OSError as e:
-            print(f"Failed to open the folder: {e}")
-
-    def show_in_folder(self):
-        try:
-            folder_path = os.path.dirname(self.filepath)
-            os.startfile(folder_path)
-        except OSError as e:
-            print(f"Failed to open the folder: {e}")
-
-    def setup_buttons_layout(self):
-        layout = QHBoxLayout()
-
-        openFileButton = QPushButton('Open File')
-        openFileButton.clicked.connect(self.open_file)
-        layout.addWidget(openFileButton)
-
-        openFolderButton = QPushButton('Open Folder')
-        openFolderButton.clicked.connect(self.open_folder)
-        layout.addWidget(openFolderButton)
-
-        return layout
+            self.close()
 
 class DownloadModel(QAbstractListModel):
     def __init__(self, downloads, parent=None):
@@ -141,13 +110,17 @@ class DownloadManager(QDialog):
         self.listView = QListView()
         self.model = DownloadModel(self.downloads)
         self.listView.setModel(self.model)
-        self.listView.doubleClicked.connect(self.show_in_folder)  # Connect to new slot
+        self.listView.doubleClicked.connect(self.show_in_folder)
         self.listView.setItemDelegate(DownloadDelegate())
         layout.addWidget(self.listView)
 
         self.clearAllButton = QPushButton('Clear All')
         self.clearAllButton.clicked.connect(self.clear_all)
         layout.addWidget(self.clearAllButton)
+
+        self.deleteButton = QPushButton('Delete Selected')
+        self.deleteButton.clicked.connect(self.delete_selected_item)
+        layout.addWidget(self.deleteButton)
 
         self.setLayout(layout)
 
@@ -200,7 +173,12 @@ class DownloadManager(QDialog):
             print(f"Error loading downloads: {e}")
             return []
 
-    def delete_selected_item(self, index):
+    def delete_selected_item(self):
+        selected_indexes = self.listView.selectedIndexes()
+        if not selected_indexes:
+            return
+
+        index = selected_indexes[0]
         url, filename, path = self.downloads[index.row()]
         response = QMessageBox.question(self, 'Delete Download',
                                         f"Do you want to delete {filename}?",
