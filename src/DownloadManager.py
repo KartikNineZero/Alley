@@ -1,7 +1,8 @@
 import os
 import sys
 import json
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QAbstractListModel, QSize
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
@@ -9,21 +10,32 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QListView,
     QHBoxLayout,
-    QLabel,
+    QStyledItemDelegate,
     QMessageBox
 )
+
+class DownloadDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+
+        delete_icon = QIcon('delete_icon.png')
+        delete_icon_rect = option.rect.adjusted(option.rect.width() - 20, 0, 0, 0)
+        delete_icon.paint(painter, delete_icon_rect)
+
+    def sizeHint(self, option, index):
+        size_hint = super().sizeHint(option, index)
+        return QSize(size_hint.width() + 20, size_hint.height())
 
 class DownloadDialog(QDialog):
     def __init__(self, url, filename, parent=None, downloads=None):
         super().__init__(parent)
-        self.setWindowFlags(Qt.FramelessWindowHint)  # Hide titlebar
+        self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.url = url
         self.filename = filename
         self.parent = parent
         self.downloads = downloads or []
 
-        # Refined filepath storage
         self.dirpath = os.path.join(os.path.expanduser("~"), "Downloads")
         self.filepath = os.path.join(self.dirpath, self.filename)
 
@@ -31,12 +43,6 @@ class DownloadDialog(QDialog):
 
         self.label = QLabel(f'Downloading {filename}...')
         layout.addWidget(self.label)
-
-        # Removed progress bar
-
-        self.deleteButton = QPushButton('Delete')
-        self.deleteButton.clicked.connect(self.delete_download)
-        layout.addWidget(self.deleteButton)
 
         self.showInFolderButton = QPushButton('Show in Folder')
         self.showInFolderButton.clicked.connect(self.show_in_folder)
@@ -55,7 +61,7 @@ class DownloadDialog(QDialog):
             if os.path.exists(self.filepath):
                 os.remove(self.filepath)
                 print(f"{self.filename} deleted")
-                self.downloads.remove((self.url, self.filename))
+                self.downloads.remove((self.url, self.filename, self.dirpath))
                 self.save_downloads()
             else:
                 print(f"File not found: {self.filename}")
@@ -73,21 +79,21 @@ class DownloadDialog(QDialog):
 
     def open_file(self):
         try:
-            os.startfile(self.filepath)  # Open the file
+            os.startfile(self.filepath)
         except OSError as e:
             print(f"Failed to open the file: {e}")
 
     def open_folder(self):
         try:
             folder_path = os.path.dirname(self.filepath)
-            os.startfile(folder_path)  # Open the folder
+            os.startfile(folder_path)
         except OSError as e:
             print(f"Failed to open the folder: {e}")
 
     def show_in_folder(self):
         try:
             folder_path = os.path.dirname(self.filepath)
-            os.startfile(folder_path)  # Open the folder
+            os.startfile(folder_path)
         except OSError as e:
             print(f"Failed to open the folder: {e}")
 
@@ -104,8 +110,6 @@ class DownloadDialog(QDialog):
 
         return layout
 
-from PyQt5.QtCore import QAbstractListModel
-
 class DownloadModel(QAbstractListModel):
     def __init__(self, downloads, parent=None):
         super().__init__(parent)
@@ -117,12 +121,18 @@ class DownloadModel(QAbstractListModel):
     def data(self, index, role=None):
         if role == Qt.DisplayRole:
             return self.downloads[index.row()][1]
+        elif role == Qt.UserRole:
+            return self.downloads[index.row()][2]  # Additional role for path
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsEditable
 
 class DownloadManager(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Download Manager')
-        self.setGeometry(100, 100, 800, 400)  # Set a larger window size
+        self.setGeometry(100, 100, 800, 400)
+        self.center_on_screen()
 
         self.downloads = self.load_downloads()
 
@@ -131,12 +141,9 @@ class DownloadManager(QDialog):
         self.listView = QListView()
         self.model = DownloadModel(self.downloads)
         self.listView.setModel(self.model)
-        self.listView.clicked.connect(self.listview_clicked)
+        self.listView.doubleClicked.connect(self.show_in_folder)  # Connect to new slot
+        self.listView.setItemDelegate(DownloadDelegate())
         layout.addWidget(self.listView)
-
-        self.deleteSelectedButton = QPushButton('Delete Selected')
-        self.deleteSelectedButton.clicked.connect(self.delete_selected)
-        layout.addWidget(self.deleteSelectedButton)
 
         self.clearAllButton = QPushButton('Clear All')
         self.clearAllButton.clicked.connect(self.clear_all)
@@ -164,10 +171,16 @@ class DownloadManager(QDialog):
             }
         ''')
 
+    def center_on_screen(self):
+        screen_geometry = QApplication.desktop().screenGeometry()
+        center_x = (screen_geometry.width() - self.width()) // 2
+        center_y = (screen_geometry.height() - self.height()) // 2
+        self.move(center_x, center_y)
+
     def add_download(self, url, filename):
-        self.downloads.append((url, filename))
+        path = os.path.join(os.path.expanduser("~"), "Downloads")
+        self.downloads.append((url, filename, path))
         self.model.layoutChanged.emit()
-        # Add the download to the list and save
         self.save_downloads()
 
     def save_downloads(self):
@@ -187,54 +200,36 @@ class DownloadManager(QDialog):
             print(f"Error loading downloads: {e}")
             return []
 
-    def listview_clicked(self, index):
-        url, filename = self.downloads[index.row()]
-        dialog = DownloadDialog(url, filename, self)
-        layout = QHBoxLayout()
+    def delete_selected_item(self, index):
+        url, filename, path = self.downloads[index.row()]
+        response = QMessageBox.question(self, 'Delete Download',
+                                        f"Do you want to delete {filename}?",
+                                        QMessageBox.Yes | QMessageBox.No)
 
-        openFileButton = QPushButton('Open File')
-        openFileButton.clicked.connect(dialog.open_file)
-        layout.addWidget(openFileButton)
+        if response == QMessageBox.Yes:
+            filepath = os.path.join(path, filename)
+            try:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"{filename} deleted from the actual location")
+                else:
+                    print(f"File not found: {filename}")
+            except OSError as e:
+                print(f"Failed to delete {filename} from the actual location: {e}")
 
-        openFolderButton = QPushButton('Open Folder')
-        openFolderButton.clicked.connect(dialog.open_folder)
-        layout.addWidget(openFolderButton)
+            self.model.beginRemoveRows(self.model.index(0, 0), index.row(), index.row())
+            del self.downloads[index.row()]
+            self.model.endRemoveRows()
+            self.save_downloads()
 
-        showInFolderButton = QPushButton('Show in Folder')
-        showInFolderButton.clicked.connect(dialog.show_in_folder)  # Connect the new button
-        layout.addWidget(showInFolderButton)
-
-        dialog.setLayout(layout)
-        dialog.exec_()
-
-    def delete_selected(self):
-        selected_indexes = self.listView.selectedIndexes()
-        if not selected_indexes:
-            return
-
+    def show_in_folder(self, index):
+        url, filename, path = self.downloads[index.row()]
         try:
-            selected_index = selected_indexes[0]
-            selected_row = selected_index.row()
-
-            self.model.beginRemoveRows(selected_index.parent(), selected_row, selected_row)
-            url, filename = self.model.downloads[selected_row]
-            file_path = os.path.join(os.path.expanduser("~"), "Downloads", filename)
-
-            print(f"Deleting file: {file_path}")  # Log the file path for debugging
-
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                print(f"{filename} deleted")
-                del self.model.downloads[selected_row]  # Use 'del' to remove item from list
-                self.model.endRemoveRows()
-                self.save_downloads()
-            else:
-                print(f"File not found: {filename}")
+            os.startfile(path)
         except OSError as e:
-            print(f"Failed to delete the item: {e}")
+            print(f"Failed to open the folder: {e}")
 
     def clear_all(self):
-        # Clear all downloads and update the model
         self.model.beginRemoveRows(self.model.index(0, 0), 0, len(self.downloads) - 1)
         self.downloads.clear()
         self.model.endRemoveRows()
