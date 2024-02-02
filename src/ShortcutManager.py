@@ -56,8 +56,9 @@ class ShortcutManager:
         reset_zoom_shortcut = QShortcut(QKeySequence("Ctrl+0"), self.main_window)
         reset_zoom_shortcut.activated.connect(self.main_window.reset_zoom)
 
+        # Add a shortcut for opening the download list (Ctrl+J)
         downloads_shortcut = QShortcut(QKeySequence("Ctrl+J"), self.main_window)
-        downloads_shortcut.activated.connect(self.show_downloads)
+        downloads_shortcut.activated.connect(self.main_window.show_downloads)
 
         # Add a shortcut for creating a new window (Ctrl+N)
         new_window_shortcut = QShortcut(QKeySequence("Ctrl+N"), self.main_window)
