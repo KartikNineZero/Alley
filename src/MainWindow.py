@@ -17,8 +17,8 @@ from PyQt5.QtWidgets import (
     QApplication,
     QVBoxLayout,
     QWidget,
-    QPushButton
-    
+    QPushButton,
+    QFileDialog
 )
 from PyQt5.QtWidgets import QFileDialog
 import sys
@@ -68,6 +68,9 @@ class MainWindow(QMainWindow):
         self.shortcut_manager = ShortcutManager(self)
         # Call the method to create shortcuts
         self.shortcut_manager.create_shortcuts()
+
+        # Enable drag and drop events for the main window
+        self.setAcceptDrops(True)
         
         
         icon_width = 12
@@ -645,6 +648,45 @@ QMenu::separator {
     def redo_text(self):
         if hasattr(self, 'current_browser') and self.current_browser():
             self.current_browser().page().triggerAction(QWebEnginePage.Redo)
+
+    def dragEnterEvent(self, event):
+        # This event is called when a drag is in progress
+        mime_data = event.mimeData()
+
+        # Check if the data contains URLs
+        if mime_data.hasUrls():
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        # This event is called when the drop occurs
+        mime_data = event.mimeData()
+
+        # Check if the data contains URLs
+        if mime_data.hasUrls():
+            # Get the first URL from the list
+            url = mime_data.urls()[0]
+
+            # Check if the URL points to a local file
+            if url.isLocalFile():
+                # Open the file using the default application
+                file_path = url.toLocalFile()
+                self.open_file(file_path)
+
+            event.acceptProposedAction()
+
+    def open_file(self, file_path):
+        # Handle opening the file here
+        # You can customize this part based on the file type
+        if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            # It's an image file, you can display it or handle it accordingly
+            print(f"Opening image: {file_path}")
+        elif file_path.lower().endswith(('.pdf')):
+            # It's a PDF file, you can display it or handle it accordingly
+            print(f"Opening PDF: {file_path}")
+        else:
+            # For other file types, you can open them using the default application
+            print(f"Opening file: {file_path}")
+            QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
 
     def inspect_element(self):
         if self.current_browser():
