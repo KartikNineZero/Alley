@@ -262,7 +262,6 @@ QMenu::separator {
         # Chatbot overlay
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
         self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
-        print("Bug Here")
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
         self.load_tabs_data()  # Load saved tabs when the application starts
