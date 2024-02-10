@@ -36,18 +36,14 @@ class CustomizeDialog(QDialog):
         
         
         
-
     def change_color(self, mode):
-        button_border_style = "border: 2px solid purple;"
         template = "background-color: {}; color: {};"
         if mode == "dark":
             style = template.format("#333333", "white")
         elif mode == "light":
-            style = template.format("#F5F5F", "black", button_border_style)
+            style = template.format("#F5F5F5", "black")
         else:
             style = ""
         self.parent().setStyleSheet(style)
-
-    
 
 
