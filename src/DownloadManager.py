@@ -31,6 +31,7 @@ class DownloadDialog(QDialog):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
 
+
         self.url = url
         self.filename = filename
         self.parent = parent
@@ -102,6 +103,7 @@ class DownloadManager(QDialog):
         self.setWindowTitle('Download Manager')
         self.setGeometry(100, 100, 800, 400)
         self.center_on_screen()
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         self.downloads = self.load_downloads()
 
