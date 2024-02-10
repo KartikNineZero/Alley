@@ -1,4 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QRadioButton, QVBoxLayout, QLabel
+from PyQt5.QtCore import Qt
+
 
 class CustomizeDialog(QDialog):
     def __init__(self, parent=None):
@@ -6,7 +8,7 @@ class CustomizeDialog(QDialog):
 
         self.setWindowTitle('Appearance')
         self.setMinimumWidth(300)
-
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         layout = QVBoxLayout()
 
         self.dark_mode_radio = QRadioButton('Dark Mode')
@@ -19,9 +21,20 @@ class CustomizeDialog(QDialog):
 
         layout.addSpacing(15)  # Add spacing between color and theme sections
 
-        
         # Button Box
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+
+        # Set fixed size for each button
+        ok_button = button_box.button(QDialogButtonBox.Ok)
+        cancel_button = button_box.button(QDialogButtonBox.Cancel)
+
+        button_width = 100 
+        button_height = 34 
+        button_width1 = 70  
+        button_height1 = 34 
+        ok_button.setFixedSize(button_width1, button_height1)
+        cancel_button.setFixedSize(button_width, button_height)
+
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
