@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox, QApplication, QFrame, QHBoxLayout
 from PyQt5.QtCore import Qt
+from pytube import YouTube
+import os
 
 class SaveFromNet(QDialog):
     def __init__(self, parent=None):
@@ -7,13 +9,12 @@ class SaveFromNet(QDialog):
 
         # Set the window flags to make it frameless
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setStyleSheet("QDialog { min-width: 500px; }")
 
         layout = QVBoxLayout()
 
         # Add a title bar with a title and close button
         title_bar = QFrame(self)
-        title_bar.setStyleSheet("background-color: none;")
+        title_bar.setFixedHeight(30)
         title_layout = QHBoxLayout(title_bar)
 
         title_label = QLabel("Media Downloader", self)
@@ -21,10 +22,9 @@ class SaveFromNet(QDialog):
         title_layout.addWidget(title_label)
 
         close_button = QPushButton("X", self)
-        close_button.setFixedSize(30, 30)
+        close_button.setFixedSize(20, 20)
         close_button.clicked.connect(self.close)
         title_layout.addWidget(close_button, alignment=Qt.AlignRight)
-        close_button.setStyleSheet("background-color: red; color: #000; border: solid #000;")
 
         layout.addWidget(title_bar)
 
@@ -49,10 +49,25 @@ class SaveFromNet(QDialog):
         layout.addWidget(self.save_button)
 
         self.setLayout(layout)
+
     def select_file_path(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Select Save Location", "", "All Files (*)")
         if file_path:
             self.file_path_edit.setText(file_path)
+
+    def download_youtube_video(self, url, file_path):
+        try:
+            yt = YouTube(url)
+            video_title = yt.title
+            save_path = os.path.join(file_path, f"{video_title}.mp4")
+            
+            if os.path.exists(save_path):
+                raise Exception("File already exists. Choose a different save location.")
+            
+            yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=file_path)
+            return video_title
+        except Exception as e:
+            raise Exception(f"Failed to download YouTube video: {str(e)}")
 
     def save_media(self):
         url = self.url_bar.text()
@@ -63,10 +78,8 @@ class SaveFromNet(QDialog):
             return
 
         try:
-            # Your media download logic here
-            # ...
-
-            QMessageBox.information(self, "Success", "Media saved successfully.")
+            video_title = self.download_youtube_video(url, file_path)
+            QMessageBox.information(self, "Success", f"Media '{video_title}' saved successfully.")
             self.accept()  # Close the dialog
 
         except Exception as e:

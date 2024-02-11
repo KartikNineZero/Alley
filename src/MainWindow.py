@@ -530,7 +530,10 @@ QMenu::separator {
         if self.current_browser() and self.sender() == self.current_browser():
             url = q.toString()
             title = self.current_browser().page().title()
-            self.history_manager.add_to_history(url, title)
+
+            if url != "https://duckduckgo.com/":
+                self.history_manager.add_to_history(url, title)
+
             self.url_bar.setText(url)
             self.url_bar.setCursorPosition(0)
 
@@ -606,14 +609,31 @@ QMenu::separator {
         result = self.media_downloader.exec_()
         if result == QDialog.Accepted:
             # Handle downloaded file
-            filename = self.media_downloader.get_filename()
-            if filename:
-                self.downloaded_files.append(filename)
-                QMessageBox.information(
+            filename = self.media_downloader.file_path_edit.text()
+            print(f"File path: {filename}")
+            
+            if filename and os.path.exists(filename):
+                try:
+                    self.downloaded_files.append(filename)
+                    QMessageBox.information(
+                        self,
+                        "Download Complete",
+                        f"File '{filename}' downloaded successfully.",
+                    )
+                except Exception as e:
+                    QMessageBox.warning(
+                        self,
+                        "Error",
+                        f"Failed to handle downloaded file: {str(e)}",
+                    )
+            else:
+                QMessageBox.warning(
                     self,
-                    "Download Complete",
-                    f"File '{filename}' downloaded successfully.",
+                    "Error",
+                    f"The file '{filename}' does not exist.",
                 )
+
+
 
     def show_downloads(self):
         if not self.downloaded_files:

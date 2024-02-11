@@ -43,7 +43,12 @@ class HistoryManager:
         else:
             for item in self.history:
                 url = QUrl(item["url"])
-                action = QAction(item["title"], self.main_window)
+                title = item["title"]
+                
+                # Check if the title is empty and use the URL as the title
+                display_title = title if title else url.toString()
+
+                action = QAction(display_title, self.main_window)
                 action.triggered.connect(lambda checked, url=url: self.open_url(url))
                 self.history_menu.addAction(action)
 
