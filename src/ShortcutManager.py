@@ -58,7 +58,7 @@ class ShortcutManager:
 
         # Add a shortcut for opening the download list (Ctrl+J)
         downloads_shortcut = QShortcut(QKeySequence("Ctrl+J"), self.main_window)
-        downloads_shortcut.activated.connect(self.main_window.show_downloads)
+        downloads_shortcut.activated.connect(self.main_window.show_download_manager)
 
         # Add a shortcut for creating a new window (Ctrl+N)
         new_window_shortcut = QShortcut(QKeySequence("Ctrl+N"), self.main_window)
