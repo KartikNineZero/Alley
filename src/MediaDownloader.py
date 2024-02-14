@@ -14,7 +14,8 @@ class SaveFromNet(QDialog):
 
         # Add a title bar with a title and close button
         title_bar = QFrame(self)
-        title_bar.setFixedHeight(30)
+        title_bar.setStyleSheet("background-color: none;")
+        title_bar.setFixedHeight(40)
         title_layout = QHBoxLayout(title_bar)
 
         title_label = QLabel("Media Downloader", self)
@@ -22,7 +23,7 @@ class SaveFromNet(QDialog):
         title_layout.addWidget(title_label)
 
         close_button = QPushButton("X", self)
-        close_button.setFixedSize(20, 20)
+        close_button.setFixedSize(30, 30)
         close_button.clicked.connect(self.close)
         title_layout.addWidget(close_button, alignment=Qt.AlignRight)
 
