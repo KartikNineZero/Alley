@@ -9,12 +9,19 @@ class ChatOverlay(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        main_container = QWidget()
+        main_layout = QVBoxLayout(main_container)
+        main_container.setStyleSheet("background-color: black;")  # Set background color of the main container
 
         # Container for chat display
+        chat_display_container = QWidget()
+        chat_display_layout = QVBoxLayout(chat_display_container)
+
         self.chat_display = QTextBrowser()
         self.chat_display.setStyleSheet("background-color: #000; color: #fff; border-radius: 10px; padding: 10px; margin-bottom: 10px;")
-        layout.addWidget(self.chat_display)
+        chat_display_layout.addWidget(self.chat_display)
+
+        main_layout.addWidget(chat_display_container)
 
         # Container for chat input and submit button
         input_container = QWidget()
@@ -30,15 +37,16 @@ class ChatOverlay(QWidget):
         submit_button.clicked.connect(self.get_chatbot_response)
         input_layout.addWidget(submit_button)
 
-        layout.addWidget(input_container)
+        main_layout.addWidget(input_container)
 
-        # Add close button
+        # Close button
         close_button = QPushButton("Close")
         close_button.setStyleSheet("background-color: #800080; color: #fff; border-radius: 20px; padding: 10px;")
         close_button.clicked.connect(self.close)
-        layout.addWidget(close_button)
 
-        self.setLayout(layout)
+        main_layout.addWidget(close_button)
+
+        self.setLayout(main_layout)
 
         # Set the size of ChatOverlay
         self.setFixedSize(400, 600)
