@@ -1,5 +1,6 @@
 import re
 import os
+import datetime
 from PyQt5.QtCore import QUrl, Qt,QSize
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView,QWebEnginePage
@@ -128,14 +129,29 @@ class MainWindow(QMainWindow):
         toolbar.setLayout(toolbar_layout)
         
 
-        # Add actions to the toolbar
-        start_recording_action = QAction(QIcon('start_icon.svg'), "Start Recording", self)
-        start_recording_action.triggered.connect(self.start_recording)
-        toolbar.addAction(start_recording_action)
+        # Create the dropdown menu for recording options
+        self.recording_menu = QMenu(self)
+        self.recording_menu.setTitle("Recording")
 
-        stop_recording_action = QAction(QIcon('stop_icon.svg'), "Stop Recording", self)
+        # Add actions for Screenshot, Start Recording, and Stop Recording
+        screenshot_action = QAction("Screenshot", self)
+        screenshot_action.triggered.connect(self.take_screenshot)
+        self.recording_menu.addAction(screenshot_action)
+
+        start_recording_action = QAction("Start Recording", self)
+        start_recording_action.triggered.connect(self.start_recording)
+        self.recording_menu.addAction(start_recording_action)
+
+        stop_recording_action = QAction("Stop Recording", self)
         stop_recording_action.triggered.connect(self.stop_recording)
-        toolbar.addAction(stop_recording_action)
+        self.recording_menu.addAction(stop_recording_action)
+
+        # Create the dropdown button for recording options
+        self.recording_dropdown_button = QToolButton(self)
+        self.recording_dropdown_button.setMenu(self.recording_menu)
+        self.recording_dropdown_button.setPopupMode(QToolButton.InstantPopup)
+        self.recording_dropdown_button.setText("Recording")
+        toolbar.addWidget(self.recording_dropdown_button)
     
 
         add_tab_btn = QAction(
@@ -320,6 +336,24 @@ QMenu::separator {
             if self.video_writer:
                 self.video_writer.release()
                 self.video_writer = None
+
+    def take_screenshot(self):
+        if self.current_browser():
+            screenshot = self.current_browser().grab()
+            # Get the user's Pictures directory
+            pictures_directory = os.path.join(os.path.expanduser("~"), "Pictures")
+            # Create the Screenshots directory path within the Pictures directory
+            screenshots_directory = os.path.join(pictures_directory, "Screenshots")
+            # Ensure that the Screenshots directory exists
+            if not os.path.exists(screenshots_directory):
+                os.makedirs(screenshots_directory)
+            # Generate a unique filename based on the current date and time
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            screenshot_file = os.path.join(screenshots_directory, f"screenshot_{timestamp}.png")
+            # Save the screenshot
+            screenshot.save(screenshot_file)
+            QMessageBox.information(self, "Screenshot Taken", f"Screenshot saved as '{screenshot_file}'")
+
 
     def on_download_requested(self, download):
         download.finished.connect(self.on_download_finished)
