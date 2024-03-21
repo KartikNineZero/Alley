@@ -134,15 +134,15 @@ class MainWindow(QMainWindow):
         self.recording_menu.setTitle("Recording")
 
         # Add actions for Screenshot, Start Recording, and Stop Recording
-        screenshot_action = QAction("Screenshot", self)
+        screenshot_action = QAction("Screenshot   Alt + S", self)
         screenshot_action.triggered.connect(self.take_screenshot)
         self.recording_menu.addAction(screenshot_action)
 
-        start_recording_action = QAction("Start Recording", self)
+        start_recording_action = QAction("Start Recording   Ctrl + Alt + R", self)
         start_recording_action.triggered.connect(self.start_recording)
         self.recording_menu.addAction(start_recording_action)
 
-        stop_recording_action = QAction("Stop Recording", self)
+        stop_recording_action = QAction("Stop Recording   Ctrl + Alt + S", self)
         stop_recording_action.triggered.connect(self.stop_recording)
         self.recording_menu.addAction(stop_recording_action)
 

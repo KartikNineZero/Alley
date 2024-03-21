@@ -88,6 +88,18 @@ class ShortcutManager:
         redo_shortcut = QShortcut(QKeySequence("Ctrl+Y"), self.main_window)
         redo_shortcut.activated.connect(self.main_window.redo_text)
 
+        # Screen shot shortcut
+        screenshot_shortcut = QShortcut(QKeySequence(Qt.ALT + Qt.Key_S), self.main_window)
+        screenshot_shortcut.activated.connect(self.main_window.take_screenshot)
+
+        # Start recording shortcut
+        start_recording_shortcut = QShortcut(QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_R), self.main_window)
+        start_recording_shortcut.activated.connect(self.main_window.start_recording)
+
+        # Stop recording shortcut
+        stop_recording_shortcut = QShortcut(QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_S), self.main_window)
+        stop_recording_shortcut.activated.connect(self.main_window.stop_recording)
+
 
     def add_shortcut(self, key_sequence, callback, tooltip=None):
         shortcut = QShortcut(QKeySequence(key_sequence), self.main_window)
