@@ -20,6 +20,11 @@ from PyQt5.QtWidgets import (
     QPushButton
     
 )
+from PyQt5.QtCore import QTimer
+import pyautogui
+import cv2
+import numpy as np
+
 from PyQt5.QtWidgets import QFileDialog
 import sys
 import json
@@ -68,6 +73,14 @@ class MainWindow(QMainWindow):
         self.shortcut_manager = ShortcutManager(self)
         # Call the method to create shortcuts
         self.shortcut_manager.create_shortcuts()
+
+        self.setWindowTitle("Screen Recorder")
+        self.setGeometry(100, 100, 800, 600)
+
+        self.recording = False
+        self.video_writer = None
+
+        #self.init_ui()
         
         
         icon_width = 12
@@ -114,6 +127,17 @@ class MainWindow(QMainWindow):
         toolbar_layout.addWidget(self.url_bar)
         toolbar.setLayout(toolbar_layout)
         
+
+        # Add actions to the toolbar
+        start_recording_action = QAction(QIcon('start_icon.svg'), "Start Recording", self)
+        start_recording_action.triggered.connect(self.start_recording)
+        toolbar.addAction(start_recording_action)
+
+        stop_recording_action = QAction(QIcon('stop_icon.svg'), "Stop Recording", self)
+        stop_recording_action.triggered.connect(self.stop_recording)
+        toolbar.addAction(stop_recording_action)
+    
+
         add_tab_btn = QAction(
             QIcon(QPixmap(resource_path("Icons\\a.svg")).scaled(3*icon_width,3* icon_height)), "+ New Tab", self
         )
@@ -266,6 +290,36 @@ QMenu::separator {
 
         self.load_tabs_data()  # Load saved tabs when the application starts
 
+
+    def start_recording(self):
+        if not self.recording:
+            self.recording = True
+            screen_width, screen_height = pyautogui.size()
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save Video", "", "Videos (*.mp4)")
+            if file_path:
+                self.video_writer = cv2.VideoWriter(file_path, cv2.VideoWriter_fourcc(*'mp4v'), 10, (screen_width, screen_height))
+
+            if self.video_writer is not None:  # Check if video_writer is properly initialized
+                self.timer = QTimer()
+                self.timer.timeout.connect(self.capture_screen)
+                self.timer.start(100)  # Capture screen every 100 milliseconds
+            else:
+                print("Failed to initialize video writer.")
+
+    def capture_screen(self):
+        if self.recording:
+            screenshot = pyautogui.screenshot()
+            frame = np.array(screenshot)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            self.video_writer.write(frame)
+
+    def stop_recording(self):
+        if self.recording:
+            self.recording = False
+            self.timer.stop()
+            if self.video_writer:
+                self.video_writer.release()
+                self.video_writer = None
 
     def on_download_requested(self, download):
         download.finished.connect(self.on_download_finished)
