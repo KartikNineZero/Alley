@@ -18,8 +18,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QVBoxLayout,
     QWidget,
-    QPushButton
-    
+    QPushButton 
 )
 from PyQt5.QtCore import QTimer
 import pyautogui
@@ -81,18 +80,13 @@ class MainWindow(QMainWindow):
         self.recording = False
         self.video_writer = None
 
-        #self.init_ui()
-        
-        
         icon_width = 12
         icon_height = 12
         self.icon_width = 12
         self.icon_height = 12 
         self.tabs.currentChanged.connect(self.update_url_from_active_tab)
         self.tabs.currentChanged.connect(self.update_url_from_tab)
-        home_btn = QAction(QIcon(QPixmap(resource_path("Icons\\h.svg")).scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self
-            
-        )
+        home_btn = QAction(QIcon(QPixmap(resource_path("Icons\\h.svg")).scaled(2*icon_width,2* icon_height)), "⌂ HomePage", self)
         toolbar.setMovable(False)
         #home_btn.setShortcut('Alt+H')
         home_btn.triggered.connect(self.navigate_home)
@@ -127,33 +121,22 @@ class MainWindow(QMainWindow):
         toolbar_layout = QVBoxLayout(toolbar)
         toolbar_layout.addWidget(self.url_bar)
         toolbar.setLayout(toolbar_layout)
-        
 
-        # Create the dropdown menu for recording options
-        self.recording_menu = QMenu(self)
-        self.recording_menu.setTitle("Recording")
+        # Add screenshot button
+        screenshot_btn = QAction(QIcon(QPixmap(resource_path("Icons\\screenshot_icon.png"))), "Screenshot  Alt + S", self)
+        screenshot_btn.triggered.connect(self.take_screenshot)
+        toolbar.addAction(screenshot_btn)
 
-        # Add actions for Screenshot, Start Recording, and Stop Recording
-        screenshot_action = QAction("Screenshot   Alt + S", self)
-        screenshot_action.triggered.connect(self.take_screenshot)
-        self.recording_menu.addAction(screenshot_action)
+        # Add start recording button
+        start_recording_btn = QAction(QIcon(QPixmap(resource_path("Icons\\start_recording_icon.png"))), "Start Recording  Ctrl + Alt + R", self)
+        start_recording_btn.triggered.connect(self.start_recording)
+        toolbar.addAction(start_recording_btn)
 
-        start_recording_action = QAction("Start Recording   Ctrl + Alt + R", self)
-        start_recording_action.triggered.connect(self.start_recording)
-        self.recording_menu.addAction(start_recording_action)
-
-        stop_recording_action = QAction("Stop Recording   Ctrl + Alt + S", self)
-        stop_recording_action.triggered.connect(self.stop_recording)
-        self.recording_menu.addAction(stop_recording_action)
-
-        # Create the dropdown button for recording options
-        self.recording_dropdown_button = QToolButton(self)
-        self.recording_dropdown_button.setMenu(self.recording_menu)
-        self.recording_dropdown_button.setPopupMode(QToolButton.InstantPopup)
-        self.recording_dropdown_button.setText("Recording")
-        toolbar.addWidget(self.recording_dropdown_button)
+        # Add stop recording button
+        stop_recording_btn = QAction(QIcon(QPixmap(resource_path("Icons\\stop_recording_icon.png"))), "Stop Recording  Ctrl + Alt + S", self)
+        stop_recording_btn.triggered.connect(self.stop_recording)
+        toolbar.addAction(stop_recording_btn)
     
-
         add_tab_btn = QAction(
             QIcon(QPixmap(resource_path("Icons\\a.svg")).scaled(3*icon_width,3* icon_height)), "+ New Tab", self
         )
@@ -252,7 +235,6 @@ QMenu::separator {
         # Replace 'Icons/bookmarks_icon.ico' with the actual path to your bookmarks icon
         bookmarks_icon_path = resource_path('Icons\\saved.png')
         self.bookmarks_action.setIcon(QIcon(bookmarks_icon_path))
-        
 
         inspect_element_action_dropdown = QAction(QIcon(resource_path('Icons\\dt.svg')), 'Dev tool', self)
         inspect_element_action_dropdown.triggered.connect(self.inspect_element)
@@ -306,7 +288,6 @@ QMenu::separator {
 
         self.load_tabs_data()  # Load saved tabs when the application starts
 
-
     def start_recording(self):
         if not self.recording:
             self.recording = True
@@ -353,7 +334,6 @@ QMenu::separator {
             # Save the screenshot
             screenshot.save(screenshot_file)
             QMessageBox.information(self, "Screenshot Taken", f"Screenshot saved as '{screenshot_file}'")
-
 
     def on_download_requested(self, download):
         download.finished.connect(self.on_download_finished)
@@ -506,7 +486,6 @@ QMenu::separator {
             # Set the favicon for the new tab
             browser.loadFinished.connect(lambda: self.update_tab_title(browser))
 
-            
             if self.current_browser():
                 browser.urlChanged.connect(
                     lambda url, browser=browser: self.update_url(url)
@@ -515,7 +494,6 @@ QMenu::separator {
                 )
             
                 browser.page().profile().downloadRequested.connect(self.on_download_requested)
-
 
     #commitfix
     # Helper methods for file and data checks
@@ -577,9 +555,6 @@ QMenu::separator {
         # Connect the favicon_changed function to the iconChanged signal
         browser.page().iconChanged.connect(favicon_changed)
 
-
-
-
     def close_tab(self, index):
         browser_widget = self.tabs.widget(index)
 
@@ -635,7 +610,6 @@ QMenu::separator {
                 self.history_manager.add_to_history(url.toString(), title)
             self.update_url(current_browser.url())
 
-
     def show_bookmarks(self):
         if not hasattr(self, 'bookmark_dialog') or not self.bookmark_dialog.isVisible():
             self.bookmark_dialog = BookmarkDialog(browser=self.current_browser())
@@ -643,8 +617,6 @@ QMenu::separator {
             self.bookmark_dialog.show()
         else:
             self.bookmark_dialog.activateWindow()
-
-
 
     def show_bookmark_dialog(self):
         dialog = BookmarkDialog(self)
@@ -680,13 +652,11 @@ QMenu::separator {
         customize_dialog = CustomizeDialog(self)
         customize_dialog.exec_()
 
-
     def truncate_url(self, url, max_length=40):
         # Truncate the URL to a maximum length
         if len(url) > max_length:
             return f"{url[:max_length-3]}..."
         return url
-
             
     def open_chatbot_overlay(self):
         # Toggle the visibility of the chat overlay
@@ -720,8 +690,6 @@ QMenu::separator {
                     "Error",
                     f"The file '{filename}' does not exist.",
                 )
-
-
 
     def show_downloads(self):
         if not self.downloaded_files:
@@ -783,5 +751,3 @@ QMenu::separator {
                 .replace("http://", "chrome-devtools://devtools/remote/")
             )
             dev_tools_browser.setUrl(QUrl(dev_tools_url))
-
-    
