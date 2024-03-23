@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         # Call the method to create shortcuts
         self.shortcut_manager.create_shortcuts()
 
-        self.setWindowTitle("Screen Recorder")
+        self.setWindowTitle("Alley Browser")
         self.setGeometry(100, 100, 800, 600)
 
         self.recording = False
