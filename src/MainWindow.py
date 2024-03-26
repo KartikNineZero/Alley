@@ -2,7 +2,7 @@ import re
 import os
 import datetime
 from PyQt5.QtCore import QUrl, Qt,QSize
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
+from PyQt5.QtGui import QKeySequence,QCursor, QIcon, QPixmap
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView,QWebEnginePage
 from PyQt5.QtWidgets import (
     QAction,
@@ -18,7 +18,8 @@ from PyQt5.QtWidgets import (
     QApplication,
     QVBoxLayout,
     QWidget,
-    QPushButton 
+    QPushButton,
+    QShortcut,
 )
 from PyQt5.QtCore import QTimer
 import pyautogui
@@ -37,6 +38,8 @@ from src.CustomizeDialog import CustomizeDialog
 from src.ShortcutManager import ShortcutManager
 from src.DownloadManager import DownloadDialog,DownloadManager
 from src.HistoryManager import HistoryManager
+from src.wheel import CustomOverlay
+from PyQt5.QtCore import pyqtSlot
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -64,6 +67,7 @@ class MainWindow(QMainWindow):
         self.download_manager.hide()
         self.history_manager = HistoryManager(self)
         self.history_manager.load_history()
+        self.custom_overlay = CustomOverlay(self)
         toolbar = QToolBar()
         self.addToolBar(toolbar)
         toolbar.setFixedHeight(55)
@@ -164,7 +168,7 @@ QMenu {
     background-color: qlineargradient(x2:1, y2:1, x2:1, y2:1, stop:0 #1e1e1e, stop:1 purple);
     border: 1px solid #2e2e2e;
     width: 280px; 
-    height: 443px; 
+    height: 480px; 
 }
 
 QMenu::item {
@@ -285,6 +289,16 @@ QMenu::separator {
         self.chat_overlay = ChatOverlay(chatbot=self.chatbot)
         self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
+
+        wheel_action = QAction("Wheel", self)
+        wheel_action.triggered.connect(self.toggle_custom_overlay)
+        self.dropdown_menu.addAction(wheel_action)
+        # Connect the closed signal of CustomOverlay to hide the overlay
+        self.custom_overlay.closed.connect(self.hide_custom_overlay)
+
+        # Connect Alt+E shortcut to close the wheel
+        self.close_wheel_shortcut = QShortcut(QKeySequence("Alt+E"), self)
+        self.close_wheel_shortcut.activated.connect(self.close_wheel)
 
         self.load_tabs_data()  # Load saved tabs when the application starts
 
@@ -751,3 +765,23 @@ QMenu::separator {
                 .replace("http://", "chrome-devtools://devtools/remote/")
             )
             dev_tools_browser.setUrl(QUrl(dev_tools_url))
+
+    def toggle_custom_overlay(self):
+        if self.custom_overlay.isVisible():
+            self.hide_custom_overlay()
+        else:
+            self.show_custom_overlay()
+
+    def show_custom_overlay(self):
+        self.custom_overlay.show()
+
+    def hide_custom_overlay(self):
+        self.custom_overlay.hide()
+
+    def open_wheel(self):
+        # Implement the logic to open the wheel here
+        self.toggle_custom_overlay()
+
+    def close_wheel(self):
+        # Implement the logic to close the wheel here
+        self.home_button.clicked.emit()
