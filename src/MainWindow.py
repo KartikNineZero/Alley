@@ -290,7 +290,7 @@ QMenu::separator {
         self.chat_overlay.setVisible(False)  # Initially hide the chat overlay
         self.layout().addWidget(self.chat_overlay)  # Add to the main window layout
 
-        wheel_action = QAction("Wheel", self)
+        wheel_action = QAction("Widgets", self)
         wheel_action.triggered.connect(self.toggle_custom_overlay)
         self.dropdown_menu.addAction(wheel_action)
         # Connect the closed signal of CustomOverlay to hide the overlay

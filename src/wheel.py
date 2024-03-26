@@ -135,6 +135,29 @@ class CustomOverlay(QWidget):
         self.setFixedSize(500, 500)
         self.setupButtons()
         self.setupHomeButton()
+        self.setupScreenshotButton()
+        self.setupScreenRecordingButton()
+
+    def setupScreenshotButton(self):
+        self.screenshot_button = QPushButton(self)
+        self.screenshot_button.setIcon(QIcon("screenshot_icon.png"))  # Provide icon path
+        self.screenshot_button.setIconSize(QSize(30, 30))  # Adjusted size
+        self.screenshot_button.setStyleSheet("background-color: #CCCCCC; border: none; border-radius: 15px;")
+        self.screenshot_button.setCursor(Qt.PointingHandCursor)
+        shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3)
+        self.screenshot_button.setGraphicsEffect(shadow)
+        self.screenshot_button.clicked.connect(self.main_window.take_screenshot)
+
+    def setupScreenRecordingButton(self):
+        self.screen_recording_button = QPushButton(self)
+        self.screen_recording_button.setIcon(QIcon("screen_recording_icon.png"))  # Provide icon path
+        self.screen_recording_button.setIconSize(QSize(30, 30))  # Adjusted size
+        self.screen_recording_button.setStyleSheet("background-color: #CCCCCC; border: none; border-radius: 15px;")
+        self.screen_recording_button.setCursor(Qt.PointingHandCursor)
+        shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3)
+        self.screen_recording_button.setGraphicsEffect(shadow)
+        self.screen_recording_button.clicked.connect(self.main_window.start_recording)
+
 
     def setupButtons(self):
         self.buttons = []
@@ -159,8 +182,24 @@ class CustomOverlay(QWidget):
                 button.setIconSize(notes_icon_actual_size)
                 button.setStyleSheet("background-color: none; border: none; padding: 0px;")
                 button.clicked.connect(self.show_notepad)
+            elif i == 2:
+                button = QPushButton(self)  # Add screenshot button
+                screenshot_icon = QIcon("Icons/screenshot_icon.png")  # Provide icon path
+                screenshot_icon_actual_size = screenshot_icon.actualSize(QSize(100, 100))  # Adjust size as needed
+                button.setIcon(screenshot_icon)
+                button.setIconSize(screenshot_icon_actual_size)
+                button.setStyleSheet("background-color: none; border: none; padding: 0px;")
+                button.clicked.connect(self.main_window.take_screenshot)
+            elif i == 3:
+                button = QPushButton(self)  # Add screen recording button
+                screen_recording_icon = QIcon("Icons/start_recording_icon.png")  # Provide icon path
+                screen_recording_icon_actual_size = screen_recording_icon.actualSize(QSize(100, 100))  # Adjust size as needed
+                button.setIcon(screen_recording_icon)
+                button.setIconSize(screen_recording_icon_actual_size)
+                button.setStyleSheet("background-color: none; border: none; padding: 0px;")
+                button.clicked.connect(self.main_window.start_recording)
             else:
-                button = QPushButton('Feature {}'.format(i), self)
+                button = QPushButton('Feature {}'.format(i - 2), self)
                 button.setStyleSheet("background-color: none; border: none; padding: 0px;")
 
                                                
