@@ -1,33 +1,38 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox, QApplication, QFrame, QHBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox, QApplication, QFrame, QHBoxLayout, QWidget, QDesktopWidget
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QMovie
 from pytube import YouTube
 import os
+import sys
+
+class MediaDownloaderThread(QThread):
+    finished = pyqtSignal(str)
+    error = pyqtSignal(str)
+
+    def __init__(self, url, file_path):
+        super().__init__()
+        self.url = url
+        self.file_path = file_path
+
+    def run(self):
+        try:
+            yt = YouTube(self.url)
+            video_title = yt.title
+            save_path = os.path.join(self.file_path, f"{video_title}.mp4")
+
+            if os.path.exists(save_path):
+                raise Exception("File already exists. Choose a different save location.")
+
+            yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=self.file_path)
+            self.finished.emit(video_title)
+        except Exception as e:
+            self.error.emit(str(e))
 
 class SaveFromNet(QDialog):
     def __init__(self, parent=None):
         super(SaveFromNet, self).__init__(parent)
 
-        # Set the window flags to make it frameless
-        self.setWindowFlags(Qt.FramelessWindowHint)
-
         layout = QVBoxLayout()
-
-        # Add a title bar with a title and close button
-        title_bar = QFrame(self)
-        title_bar.setStyleSheet("background-color: none;")
-        title_bar.setFixedHeight(40)
-        title_layout = QHBoxLayout(title_bar)
-
-        title_label = QLabel("Media Downloader", self)
-        title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        title_layout.addWidget(title_label)
-
-        close_button = QPushButton("X", self)
-        close_button.setFixedSize(30, 30)
-        close_button.clicked.connect(self.close)
-        title_layout.addWidget(close_button, alignment=Qt.AlignRight)
-
-        layout.addWidget(title_bar)
 
         self.label = QLabel("Enter the URL of the media you want to save:")
         layout.addWidget(self.label)
@@ -46,7 +51,7 @@ class SaveFromNet(QDialog):
         layout.addWidget(self.file_path_button)
 
         self.save_button = QPushButton("Save")
-        self.save_button.clicked.connect(self.save_media)
+        self.save_button.clicked.connect(self.start_download)
         layout.addWidget(self.save_button)
 
         self.setLayout(layout)
@@ -56,21 +61,7 @@ class SaveFromNet(QDialog):
         if file_path:
             self.file_path_edit.setText(file_path)
 
-    def download_youtube_video(self, url, file_path):
-        try:
-            yt = YouTube(url)
-            video_title = yt.title
-            save_path = os.path.join(file_path, f"{video_title}.mp4")
-            
-            if os.path.exists(save_path):
-                raise Exception("File already exists. Choose a different save location.")
-            
-            yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=file_path)
-            return video_title
-        except Exception as e:
-            raise Exception(f"Failed to download YouTube video: {str(e)}")
-
-    def save_media(self):
+    def start_download(self):
         url = self.url_bar.text()
         file_path = self.file_path_edit.text()
 
@@ -78,18 +69,82 @@ class SaveFromNet(QDialog):
             QMessageBox.warning(self, "Error", "URL and file path must be specified.")
             return
 
-        try:
-            video_title = self.download_youtube_video(url, file_path)
-            QMessageBox.information(self, "Success", f"Media '{video_title}' saved successfully.")
-            self.accept()  # Close the dialog
+        # Close current dialog
+        self.close()
 
-        except Exception as e:
-            QMessageBox.warning(self, "Error", f"Failed to download media: {str(e)}")
+        # Show loading dialog
+        loading_dialog = LoadingDialog(url, file_path)
+        loading_dialog.finished.connect(self.download_finished)
+        loading_dialog.exec_()
+
+    def download_finished(self, video_title):
+        QMessageBox.information(self, "Success", f"Media '{video_title}' saved successfully.")
+
+class LoadingDialog(QDialog):
+    finished = pyqtSignal(str)
+
+    def __init__(self, url, file_path, parent=None):
+        super(LoadingDialog, self).__init__(parent)
+
+        self.setStyleSheet("background-color: rgba(255, 255, 255, 0.7); border-radius: 10px;")
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)  # Set layout margins to zero
+
+        # Loading GIF
+        self.loading_movie = QMovie("Icons/progress.gif")
+        self.loading_label = QLabel()
+        self.loading_label.setAlignment(Qt.AlignCenter)
+        self.loading_label.setFixedSize(320, 64)  # Set fixed size for the QLabel to match the GIF
+        self.loading_label.setMovie(self.loading_movie)
+        self.loading_movie.start()
+        layout.addWidget(self.loading_label, alignment=Qt.AlignCenter)
+        layout.setSpacing(0)  # Set layout spacing to zero
+
+        self.setLayout(layout)
+
+        # Set dialog position and size
+        self.resize(320, 64)  # Set window size to match the GIF size
+        self.setFixedSize(self.size())  # Disable resizing
+
+        # Center the dialog on the screen
+        screen_geometry = QApplication.desktop().screenGeometry()
+        self.move(screen_geometry.center() - self.rect().center())
+
+        # Start download in a separate thread
+        self.download_thread = MediaDownloaderThread(url, file_path)
+        self.download_thread.finished.connect(self.download_finished)
+        self.download_thread.error.connect(self.download_error)
+        self.download_thread.start()
+
+    def download_finished(self, video_title):
+        self.finished.emit(video_title)
+        self.close()
+
+    def download_error(self, error_message):
+        QMessageBox.warning(self, "Error", f"Failed to download media: {error_message}")
+        self.close()
 
 if __name__ == "__main__":
-    app = QApplication([])
+    app = QApplication(sys.argv)
+
+    loading_dialog = LoadingDialog("https://www.example.com/video.mp4", "/path/to/save")
+    loading_dialog.exec_()
+
+    sys.exit(app.exec_())
+
+    def download_finished(self, video_title):
+        self.finished.emit(video_title)
+        self.close()
+
+    def download_error(self, error_message):
+        QMessageBox.warning(self, "Error", f"Failed to download media: {error_message}")
+        self.close()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
 
     media_downloader = SaveFromNet()
-    result = media_downloader.exec_()
+    media_downloader.show()
 
-    app.exec_()
+    sys.exit(app.exec_())
