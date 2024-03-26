@@ -100,6 +100,22 @@ class ShortcutManager:
         stop_recording_shortcut = QShortcut(QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_S), self.main_window)
         stop_recording_shortcut.activated.connect(self.main_window.stop_recording)
 
+        # Add a shortcut (Alt+W) to toggle the custom overlay (wheel)
+        toggle_overlay_shortcut = QShortcut("Alt+W", self.main_window)
+        toggle_overlay_shortcut.activated.connect(self.toggle_custom_overlay)
+
+         # Add a shortcut (Alt+E) to close the custom overlay (wheel)
+        close_overlay_shortcut = QShortcut(QKeySequence("Alt+E"), self.main_window)
+        close_overlay_shortcut.activated.connect(self.close_custom_overlay)
+
+    def toggle_custom_overlay(self):
+        if not self.main_window.custom_overlay.isVisible():
+            self.main_window.show_custom_overlay()
+
+    def close_custom_overlay(self):
+        if self.main_window.custom_overlay.isVisible():
+            # If the wheel is open, close it
+            self.main_window.hide_custom_overlay()
 
     def add_shortcut(self, key_sequence, callback, tooltip=None):
         shortcut = QShortcut(QKeySequence(key_sequence), self.main_window)

@@ -135,28 +135,6 @@ class CustomOverlay(QWidget):
         self.setFixedSize(500, 500)
         self.setupButtons()
         self.setupHomeButton()
-        self.setupScreenshotButton()
-        self.setupScreenRecordingButton()
-
-    def setupScreenshotButton(self):
-        self.screenshot_button = QPushButton(self)
-        self.screenshot_button.setIcon(QIcon("screenshot_icon.png"))  # Provide icon path
-        self.screenshot_button.setIconSize(QSize(30, 30))  # Adjusted size
-        self.screenshot_button.setStyleSheet("background-color: #CCCCCC; border: none; border-radius: 15px;")
-        self.screenshot_button.setCursor(Qt.PointingHandCursor)
-        shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3)
-        self.screenshot_button.setGraphicsEffect(shadow)
-        self.screenshot_button.clicked.connect(self.main_window.take_screenshot)
-
-    def setupScreenRecordingButton(self):
-        self.screen_recording_button = QPushButton(self)
-        self.screen_recording_button.setIcon(QIcon("screen_recording_icon.png"))  # Provide icon path
-        self.screen_recording_button.setIconSize(QSize(30, 30))  # Adjusted size
-        self.screen_recording_button.setStyleSheet("background-color: #CCCCCC; border: none; border-radius: 15px;")
-        self.screen_recording_button.setCursor(Qt.PointingHandCursor)
-        shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3)
-        self.screen_recording_button.setGraphicsEffect(shadow)
-        self.screen_recording_button.clicked.connect(self.main_window.start_recording)
 
 
     def setupButtons(self):
