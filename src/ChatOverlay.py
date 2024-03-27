@@ -65,7 +65,7 @@ class ChatOverlay(QWidget):
         self.user_input.clear()
 
     def append_message(self, message, user=False):
-        message_html = f'<div style="background-color: {"#b084d7" if user else "#e6bbff"}; color: #fff; border-radius: 10px; padding: 10px; margin-bottom: 5px; {"text-align: right;" if user else "text-align: left;"}"><div style="border: 2px solid {"#800080" if user else "#7d62a5"}; border-radius: 10px; padding: 5px;">{message}</div></div>'
+        message_html = f'<div style="background-color: {"#b084d7" if user else "#710193"}; color: #fff; border-radius: 10px; padding: 10px; margin-bottom: 5px; {"text-align: right;" if user else "text-align: left;"}"><div style="border: 2px solid {"#800080" if user else "#7d62a5"}; border-radius: 10px; padding: 5px;">{message}</div></div>'
         current_html = self.chat_display.toHtml()
         updated_html = f"{current_html}{message_html}"
         self.chat_display.setHtml(updated_html)
