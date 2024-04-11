@@ -194,8 +194,8 @@ class SnakeWidget(QWidget):
         self.update()
 
     def generate_food(self):
-        x = random.randint(0, (self.width() / 10) - 1)
-        y = random.randint(0, (self.height() / 10) - 1)
+        x = random.randint(0, (self.width() // 10) - 1)
+        y = random.randint(0, (self.height() // 10) - 1)
         return x, y
 
     def game_over(self):
