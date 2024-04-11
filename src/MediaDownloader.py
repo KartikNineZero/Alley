@@ -69,10 +69,8 @@ class SaveFromNet(QDialog):
             QMessageBox.warning(self, "Error", "URL and file path must be specified.")
             return
 
-        # Close current dialog
         self.close()
 
-        # Show loading dialog
         loading_dialog = LoadingDialog(url, file_path)
         loading_dialog.finished.connect(self.download_finished)
         loading_dialog.exec_()
@@ -89,29 +87,26 @@ class LoadingDialog(QDialog):
         self.setStyleSheet("background-color: rgba(255, 255, 255, 0.7); border-radius: 10px;")
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)  # Set layout margins to zero
+        layout.setContentsMargins(0, 0, 0, 0) 
 
         # Loading GIF
         self.loading_movie = QMovie("Icons/progress.gif")
         self.loading_label = QLabel()
         self.loading_label.setAlignment(Qt.AlignCenter)
-        self.loading_label.setFixedSize(320, 64)  # Set fixed size for the QLabel to match the GIF
+        self.loading_label.setFixedSize(320, 64) 
         self.loading_label.setMovie(self.loading_movie)
         self.loading_movie.start()
         layout.addWidget(self.loading_label, alignment=Qt.AlignCenter)
-        layout.setSpacing(0)  # Set layout spacing to zero
+        layout.setSpacing(0)
 
         self.setLayout(layout)
 
-        # Set dialog position and size
-        self.resize(320, 64)  # Set window size to match the GIF size
-        self.setFixedSize(self.size())  # Disable resizing
+        self.resize(320, 64)  
+        self.setFixedSize(self.size())  
 
-        # Center the dialog on the screen
         screen_geometry = QApplication.desktop().screenGeometry()
         self.move(screen_geometry.center() - self.rect().center())
 
-        # Start download in a separate thread
         self.download_thread = MediaDownloaderThread(url, file_path)
         self.download_thread.finished.connect(self.download_finished)
         self.download_thread.error.connect(self.download_error)

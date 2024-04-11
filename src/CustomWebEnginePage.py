@@ -13,6 +13,5 @@ class CustomWebEnginePage(QWebEnginePage):
                 cookie.setPath(b"/")
                 cookie.setHttpOnly(False)
                 cookie.setSecure(False)
-                # Set the SameSite attribute to Lax
                 cookie.setSameSite(QNetworkCookie.SameSiteLax)
                 self.profile().cookieStore().setCookie(cookie)

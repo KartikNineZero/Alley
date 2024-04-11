@@ -14,8 +14,8 @@ class BookmarkDialog(QDialog):
 
         QToolTip.setFont(QFont('SansSerif', 10))
         self.setWindowFlags(Qt.FramelessWindowHint) 
-        self.bookmarks = []  # List to store bookmarks
-        self.folders = ['Favorites', 'Personal', 'Work']  # List of folders
+        self.bookmarks = [] 
+        self.folders = ['Favorites', 'Personal', 'Work'] 
         self.clicked_color = "#45a049"  
 
         self.setWindowTitle('Bookmarks')
@@ -61,7 +61,7 @@ class BookmarkDialog(QDialog):
         self.bookmarks_list_widget.itemClicked.connect(self.open_bookmark)
 
         save_button = QPushButton("Save Bookmark")
-        save_button.clicked.connect(self.save_bookmark)  # Connect to save_bookmark method
+        save_button.clicked.connect(self.save_bookmark) 
         save_button.setStyleSheet("background-color: black; color: white;")
 
         remove_button = QPushButton("Remove Bookmark")
@@ -71,7 +71,7 @@ class BookmarkDialog(QDialog):
         view_bookmarks_button = QPushButton("View Bookmarks")
         view_bookmarks_button.clicked.connect(self.view_bookmarks)
         view_bookmarks_button.setStyleSheet("background-color: black; color: white;")
-        view_bookmarks_button.setObjectName("view_bookmarks_button")  # Set object name for styling
+        view_bookmarks_button.setObjectName("view_bookmarks_button")
 
         layout.addWidget(save_button)
         layout.addWidget(remove_button)
@@ -79,25 +79,22 @@ class BookmarkDialog(QDialog):
         layout.addWidget(self.bookmarks_list_widget)
 
         close_button = QPushButton("Close")
-        close_button.clicked.connect(self.close)  # Close the dialog when the button is clicked
+        close_button.clicked.connect(self.close) 
         close_button.setStyleSheet("background-color: black; color: white;")
 
-        layout.addWidget(close_button)  # Add the close button
+        layout.addWidget(close_button)
 
         self.setLayout(layout)
 
-        self.main_window = None  # Initialize main_window attribute
+        self.main_window = None
 
-        # Load bookmarks from file when the dialog is created
         self.load_bookmarks()
 
-        # Apply QSS for styling and animation
         self.update_button_styles()
 
         self.move_center()
 
     def showEvent(self, event):
-        # Override showEvent to move the dialog to the center without animation
         self.move_center()
 
     def slide_in_animation(self):
@@ -105,7 +102,6 @@ class BookmarkDialog(QDialog):
         self.animation.start()
 
     def pos_anim(self, start, end, duration, target):
-        # Create a position animation
         pos_anim = QPropertyAnimation(target, b"pos")
         pos_anim.setStartValue(start)
         pos_anim.setEndValue(end)
@@ -141,7 +137,6 @@ class BookmarkDialog(QDialog):
         self.bookmarks.append({'name': bookmark_name, 'url': current_url, 'folder': selected_folder})
         self.update_bookmarks_list()
         self.bookmark_name_input.clear()
-        # Save bookmarks to file after adding a new bookmark
         self.save_bookmarks()
 
     def remove_bookmark(self):
@@ -151,13 +146,12 @@ class BookmarkDialog(QDialog):
             del self.bookmarks[index]
             QMessageBox.information(self, 'Bookmark Removed', 'Bookmark removed successfully.')
             self.update_bookmarks_list()
-            # Save bookmarks to file after removing a bookmark
             self.save_bookmarks()
 
     def view_bookmarks(self):
         if self.bookmarks:
             self.update_bookmarks_list()
-            self.show()  # Show the dialog with the slide-in animation
+            self.show() 
         else:
             QMessageBox.information(self, 'Bookmarks', 'No bookmarks available.')
 
@@ -177,21 +171,18 @@ class BookmarkDialog(QDialog):
                 self.bookmarks_list_widget.addItem(item)
 
     def save_bookmarks(self):
-        # Save bookmarks to a JSON file
         with open('bookmarks.json', 'w') as file:
             json.dump(self.bookmarks, file)
 
     def load_bookmarks(self):
-        # Load bookmarks from the JSON file if it exists
         try:
             with open('bookmarks.json', 'r') as file:
                 data = file.read()
                 if data:
                     self.bookmarks = json.loads(data)
         except FileNotFoundError:
-            pass  # Ignore if the file is not found
+            pass  
         except json.decoder.JSONDecodeError:
-            # Handle the case where the file is not in the expected format
             QMessageBox.warning(self, 'Invalid Bookmarks File', 'The bookmarks file is not in the expected format.')
 
     def add_folder(self):
@@ -203,11 +194,9 @@ class BookmarkDialog(QDialog):
     def remove_folder(self):
         folder_name, ok = QInputDialog.getItem(self, "Remove Folder", "Select folder to remove:", self.folders, 0, False)
         if ok and folder_name:
-            # Remove the folder and update the ComboBox
             self.folders.remove(folder_name)
             self.folder_combo_box.clear()
             self.folder_combo_box.addItems(['All'] + self.folders)
-            # Update the bookmarks list to reflect the changes
             self.update_bookmarks_list()
     def populate_bookmarks(self, bookmarks):
         """
@@ -220,12 +209,11 @@ class BookmarkDialog(QDialog):
         self.update_bookmarks_list()
     
     def move_center(self):
-        # Move the dialog to the left side and center vertically
         if self.main_window:
             main_window_geometry = self.main_window.geometry()
             dialog_width = self.width()
             dialog_height = self.height()
-            x = main_window_geometry.x()  # Set x-coordinate to the left side
+            x = main_window_geometry.x() 
             y = main_window_geometry.y() + (main_window_geometry.height() - dialog_height) // 2
             self.setGeometry(x, y, dialog_width, dialog_height)
 

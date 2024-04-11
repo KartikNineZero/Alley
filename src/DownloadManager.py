@@ -58,7 +58,6 @@ class DownloadDialog(QDialog):
         self.start_download()
 
     def start_download(self):
-        # Implement your download logic here
         pass
 
     def delete_download(self):

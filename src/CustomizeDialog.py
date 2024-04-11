@@ -19,12 +19,10 @@ class CustomizeDialog(QDialog):
         layout.addWidget(self.light_mode_radio)
         layout.addWidget(self.default_radio)
 
-        layout.addSpacing(15)  # Add spacing between color and theme sections
+        layout.addSpacing(15) 
 
-        # Button Box
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 
-        # Set fixed size for each button
         ok_button = button_box.button(QDialogButtonBox.Ok)
         cancel_button = button_box.button(QDialogButtonBox.Cancel)
 
@@ -42,7 +40,6 @@ class CustomizeDialog(QDialog):
 
         self.setLayout(layout)
 
-        # Connect radio buttons to change_color method
         self.dark_mode_radio.clicked.connect(lambda: self.change_color("dark"))
         self.light_mode_radio.clicked.connect(lambda: self.change_color("light"))
         self.default_radio.clicked.connect(lambda: self.change_color("default"))

@@ -27,7 +27,6 @@ class OverlayWidget(QWidget):
     def create_dropdown_menu(self):
         menu = QMenu(self)
 
-        # Add actions to the menu with icons
         actions = [
             ("Bookmarks", self.show_bookmarks,"Icons/bm.ico"),
             ("History", self.show_history, "Icons/h.ico"),
